@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="smsUiState"
+            type="sb.app.messageschedular.util.SmsUiState" />
+
+
+        <variable
+            name="messages"
+            type="sb.app.messageschedular.model.Messages" />
+
+        <variable
+            name="selectedViewModel"
+            type="sb.app.messageschedular.viewmodel.MessageScheduleViewModel" />
+
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/selected_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/recyclerview_margin_top"
+            app:viewModel="@{selectedViewModel}"
+            app:update="@{smsUiState.selectedList }"
+            android:orientation="horizontal"
+            app:layout_constraintVertical_chainStyle="packed"
+            android:visibility="@{smsUiState.selectedList.isEmpty() ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/include2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/selected_recyclerview">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/message_layoutId"
+                    layout="@layout/message_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    bind:messageViewModel="@{selectedViewModel}" />
+
+                <include
+                    android:id="@+id/date_layoutId"
+                    layout="@layout/date_layout"
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/date_layout_top_margin"
+                    bind:dateViewModel="@{selectedViewModel}" />
+
+                <include
+
+                    android:id="@+id/time_layoutId"
+                    layout="@layout/time_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/date_layout_top_margin"
+                    bind:timeViewModel="@{selectedViewModel}" />
+
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+        <include
+            android:id="@+id/include2"
+            layout="@layout/schedule_button"
+            android:layout_width="0dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginBottom="27dp"
+            android:layout_height="wrap_content"
+            bind:smsUiState="@{smsUiState}"
+            bind:message ="@{messages}"
+             bind:scheduleViewModel="@{selectedViewModel}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nestedScrollView2" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

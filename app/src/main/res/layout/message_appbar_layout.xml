@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <data>
+                <variable
+                    name="selectViewModel"
+                    type="sb.app.messageschedular.viewmodel.MessageListViewModel" />
+        </data>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:id="@+id/message_titleId"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/messages"
+                    android:textColor="@color/message_title_color"
+                    android:textSize="32sp"
+                    android:textStyle="normal"
+                    android:fontFamily="@font/poppins_semibold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/selectAllId"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/selectAllId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/sourcesanspro_regular"
+                    app:barBarText="@{selectViewModel.appBarUI.listState}"
+                    android:textSize="17sp"
+                    app:barBarColor="@{selectViewModel.appBarUI.listState}"
+                    android:onClick="@{()->selectViewModel.selectAll()}"
+                    android:textStyle="normal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/message_titleId"
+                    app:layout_constraintTop_toTopOf="@+id/message_titleId" />
+
+
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

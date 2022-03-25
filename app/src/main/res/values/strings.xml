@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">Message Schedular</string>
+    <string name="schedule_message">Schedule</string>
+    <string name="back_arrow">Back Arrow</string>
+    <string name="timing">set Time</string>
+    <string name="date">set Date</string>
+    <string name="schedule">Schedule</string>
+    <string name="message_icon">message_icon</string>
+    <string name="search">Search</string>
+    <string name="sms">SMS</string>
+    <string name="contact_item">Contacts</string>
+    <string name="message_text">Message</string>
+    <string name="dateAndTime">Date</string>
+    <string name="package_name">sb.app.messageschedular</string>
+    <string name="title">Title</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <!-- SMS Fragment -->
+
+    <string name="contact_hint">Search</string>
+    <string name="message_hint">write a message....</string>
+    <string name="contact_icon">Contact icon</string>
+    <string name="close_icon">Close Icon</string>
+    <string name="calender_description">calender description</string>
+    <string name="date_text">06/07/2021</string>
+    <string name="change_date">Change Date</string>
+    <string name="time">Time</string>
+    <string name="time_text">%1$a : %2$s PM</string>
+    <string name="change_time">Change Time</string>
+    <string name="channel_id">notifiaiton channel</string>
+    <string name="notification_title">Notification title</string>
+    <string name="notification_message">notification message</string>
+    <string name="ticker_text">"ticker "</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+    <string name="fab_content_desc">sms fab</string>
+    <string name="schedule_title">Message Scheduled</string>
+    <string name="message_description">Message will be sent at</string>
+    <string name="selectall">select All</string>
+    <string name="deleteAll">delete</string>
+    <string name="delete_message">delete message</string>
+    <string name="decline">CANCEL</string>
+    <string name="delete">DELETE</string>
+    <string name="unselect">unselect</string>
+    <string name="pending">Pending</string>
+    <string name="sent">Sent</string>
+    <string name="failed">Failed</string>
+    <string name="messages">Messages</string>
+    <string name="message">Message</string>
+    <string name="cancel">CANCEL</string>
+
+
+</resources>

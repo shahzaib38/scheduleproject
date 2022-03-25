@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="smsUiState"
+            type="sb.app.messageschedular.util.SmsUiState" />
+
+
+        <variable
+            name="message"
+            type="sb.app.messageschedular.model.Messages" />
+        <variable
+            name="scheduleViewModel"
+            type="sb.app.messageschedular.viewmodel.MessageScheduleViewModel" />
+
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/schedule_margin"
+            android:layout_marginEnd="@dimen/schedule_margin"
+            android:background="@drawable/schedule_style"
+            android:text="@string/schedule"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:onClick="@{()->scheduleViewModel.schedule(smsUiState ,message)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

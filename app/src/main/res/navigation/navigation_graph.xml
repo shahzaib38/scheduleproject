@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/message_layoutId">
+
+    <fragment
+        android:id="@+id/message_layoutId"
+        tools:layout="@layout/message_list_layout"
+        android:name="sb.app.messageschedular.ui.fragments.MessageListFragment"
+        android:label="ListFragment">
+
+        <action
+            android:id="@+id/action_message_layoutId_to_smsFragment"
+            app:destination="@id/smsFragment"
+            app:enterAnim="@anim/horizontal_slide_in"
+            app:exitAnim="@anim/horizontal_slide_out"
+
+
+            />
+
+        <action
+            android:id="@+id/action_message_layoutId_to_message_list_Dialog_id"
+            app:destination="@id/message_list_Dialog_id" />
+
+    </fragment>
+
+    <fragment
+
+        android:id="@+id/smsFragment"
+        tools:layout="@layout/sms_fragment"
+        android:name="sb.app.messageschedular.ui.fragments.SmsFragment"
+        android:label="SmsFragment">
+
+
+        <action
+            android:id="@+id/action_smsFragment_to_message_layoutId"
+            app:destination="@id/message_layoutId"
+            app:popUpToInclusive="true"
+
+            app:enterAnim="@anim/horizontal_slide_in"
+            app:exitAnim="@anim/horizontal_slide_out"
+            />
+    </fragment>
+
+
+    <dialog android:name="sb.app.messageschedular.ui.dialog.MessageListDialog"
+        android:id="@+id/message_list_Dialog_id">
+
+
+        <argument
+            android:name="message"
+            app:argType="sb.app.messageschedular.model.Message" />
+
+    </dialog>
+
+
+</navigation>
