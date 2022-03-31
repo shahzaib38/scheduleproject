@@ -19,6 +19,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dateAndTime"
+                    android:fontFamily="@font/sf_pro_display_medium"
+
                     android:textColor="@color/date_headline_color"
                     android:textSize="@dimen/date_headline"
                     android:textStyle="normal"
@@ -73,6 +75,8 @@
                                             app:update="@{dateViewModel.message.date}"
                                             android:textColor="@color/date_text_color"
                                             android:textSize="@dimen/date_text_size"
+                                            android:fontFamily="@font/sf_pro_display_medium"
+
                                             android:layout_marginStart="@dimen/date_text_start_margin"
                                             app:layout_constraintBottom_toBottomOf="@+id/calenderId"
                                             app:layout_constraintEnd_toStartOf="@+id/changeDateId"
@@ -86,6 +90,7 @@
                                             android:layout_height="wrap_content"
                                             android:layout_marginEnd="@dimen/change_date_end_margin"
                                             android:text="@string/change_date"
+                                            android:fontFamily="@font/sf_pro_display_medium"
                                             android:onClick="@{()->dateViewModel.changeDate()}"
                                             android:textColor="@drawable/date_text_style"
                                             app:layout_constraintBottom_toBottomOf="@+id/date_textId"

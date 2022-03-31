@@ -196,4 +196,10 @@ dependencies {
 //    testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.9'
 //    testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
 
+
+    def work_version = "2.7.1"
+
+    // Kotlin + coroutines
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
 }

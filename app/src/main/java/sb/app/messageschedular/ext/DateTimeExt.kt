@@ -28,12 +28,10 @@ fun messageDateAndTime(textView : TextView , date :Long?  ,time :Time?){
     println("Date"+date )
 
     if(time!=null  && date!=null ) {
+        val formatTime =  DateUtils.constructTime(time)
+        val formatDate  =   DateUtils.convertDateIntoFormat(date)
+        val dateFormat = String.format("%s  %s ", formatDate, formatTime)
 
-        val dateString = DateUtils.convertDateIntoFormat(date)
-
-        val dateFormat = String.format("%s  %d:%d ", dateString, time.hours, time.minutes)
-
-        textView.text = dateFormat
-    }
+        textView.text = dateFormat }
 
 }

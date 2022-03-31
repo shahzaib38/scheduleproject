@@ -9,5 +9,5 @@ interface MessageNavigator : Navigator {
     fun changeTime()
     fun changeDate()
     fun scheduleService(sms : Sms)
-
+      fun openTypeMessageDialog()
 }

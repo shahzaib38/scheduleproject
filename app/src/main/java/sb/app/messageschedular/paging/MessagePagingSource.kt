@@ -1,12 +1,5 @@
 package sb.app.messageschedular.paging
 
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
-import sb.app.messageschedular.api.UnSplashApi
-import sb.app.messageschedular.database.SmsDatabase
-import sb.app.messageschedular.model.Sms
-import sb.app.messageschedular.model.UnSplashImage
-
 //class MessagePagingSource(private val smsDatabase: SmsDatabase) : PagingSource<Int ,Sms>() {
 //
 //

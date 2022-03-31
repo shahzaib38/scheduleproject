@@ -42,6 +42,9 @@
             app:enterAnim="@anim/horizontal_slide_in"
             app:exitAnim="@anim/horizontal_slide_out"
             />
+        <action
+            android:id="@+id/action_smsFragment_to_typeMessageFragmentId"
+            app:destination="@id/typeMessageFragmentId" />
     </fragment>
 
 
@@ -52,6 +55,18 @@
         <argument
             android:name="message"
             app:argType="sb.app.messageschedular.model.Message" />
+
+    </dialog>
+
+    <dialog
+        android:id="@+id/typeMessageFragmentId"
+        android:name="sb.app.messageschedular.ui.dialog.TypeMessageDialog"
+        android:label="Type Message Dialog"
+        tools:layout="@layout/type_message_dialog"
+        >
+
+
+
 
     </dialog>
 

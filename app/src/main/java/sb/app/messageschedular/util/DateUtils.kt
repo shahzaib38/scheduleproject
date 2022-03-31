@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import sb.app.messageschedular.enums.Meridiem
 import sb.app.messageschedular.model.Messages
 import sb.app.messageschedular.model.Sms
+import sb.app.messageschedular.model.Time
 import java.sql.Date
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -14,7 +15,7 @@ import java.util.*
 object DateUtils {
 
     const val MIDDAY =12
-    const val TIME_FORMAT ="%d:%d %s"
+    const val TIME_FORMAT ="%02d:%02d %s"
     const val AM ="AM"
     const val PM ="PM"
     const val DATE_FORMAT="dd/MM/yyyy"
@@ -120,6 +121,19 @@ object DateUtils {
         return calender.time }
 
 
+
+
+     fun constructTime(time: Time):String{
+
+        return    if(time.is24Hours){
+
+            String.format("%02d:%02d",time.hours ,time.minutes)
+
+        }else{
+
+            sb.app.messageschedular.util.DateUtils.twelveHourFormat(hours = time.hours, time.minutes) }
+
+    }
 
 
 

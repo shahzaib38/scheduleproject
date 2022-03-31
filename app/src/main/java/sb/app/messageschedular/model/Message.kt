@@ -54,26 +54,29 @@ data class UserInfo(
 
 
 
-
-
-
-
-
-
 @Parcelize
 data class Sms(
 
     @Embedded
     var messages: Messages,
 
-//    @Relation(
-//        parentColumn = "smsId",
-//        entityColumn = "smsId")
-        var userList  :  List<Contact> = emptyList() ) : Parcelable ,Messenger
+    @Relation(
+        parentColumn = "messageId",
+        entityColumn = "messageId")
+    var userList  :  List<Contact> = emptyList() ) : Parcelable ,Messenger
+
+
+
+
+
+
+
 
 @Parcelize
-//@Entity(tableName = "message")
+@Entity
 data class Messages(
+
+    @PrimaryKey(autoGenerate = false)
      var messageId :Long =0,
     var message : String ="",
 

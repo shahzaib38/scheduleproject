@@ -1,39 +1,49 @@
 package sb.app.messageschedular.sms_schedulers
 
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.content.Intent
 import android.os.CountDownTimer
 import android.telephony.SmsManager
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import sb.app.messageschedular.broadcast_reciever.PendingBroadCast
+import sb.app.messageschedular.broadcast_reciever.SendBroadCast
+import sb.app.messageschedular.database.MessageDatabase
 import sb.app.messageschedular.database.SmsDatabase
 import sb.app.messageschedular.enums.MessageStatus
 import sb.app.messageschedular.exceptions.SmsEnQueueException
 import sb.app.messageschedular.model.*
 import sb.app.messageschedular.service.SmsService
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.ONE_SECOND
+import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.TAG
 import sb.app.messageschedular.util.DateUtils
 import java.util.*
 import kotlin.NullPointerException
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 
 interface SmsScdeduler {
 
    // fun add(sms: Sms):Boolean
-    fun schedule(sms: Sms)
+    suspend  fun schedule(sms: Sms)
     fun update(messageId : Long,userId :Int ,status : MessageStatus)
     fun onUnScheduled()
     fun getSentMessages():Map<Long ,Set<Int>>
-    fun startCountDown(sms: Sms)
+    suspend  fun startCountDown(sms: Sms)
     fun delete(message: Message)
     fun removeToDataBase(message: Message)
     fun enqueue(sms :Sms):Boolean
     fun sendSms(sms:Sms)
     fun failedInsert(sms :Sms )
-
+    suspend  fun reSchedule()
+    fun log(value :String)
+    fun resetCounter(sms:Sms )
 
     companion object{
         const val ONE_SECOND =1000L
+         var  TAG = SmsSchedulerImpl::class.java.name
 
         @Volatile
         private var INSTANCE : SmsScdeduler?=null
@@ -46,16 +56,21 @@ interface SmsScdeduler {
     }
 
 
+
+
+
+
+
 }
 
 
     //private val smsDatabase: SmsDatabase
 class SmsSchedulerImpl constructor(
-      private val   smsService : SmsService,
-       private  val smsDatabase : SmsDatabase =  SmsDatabase.getInstance(smsService.applicationContext),
-      private  val smsManager: SmsManager =  android.telephony.SmsManager.getDefault()
+        private val   smsService : SmsService ,
+        private  val messageDatabase : MessageDatabase =  MessageDatabase.getInstance(smsService.applicationContext),
+        private  val smsDatabase : SmsDatabase =  SmsDatabase.getInstance(smsService.applicationContext),
+        private  val smsManager: SmsManager =  android.telephony.SmsManager.getDefault()
     ) : SmsScdeduler {
-
 
 
         companion object {
@@ -96,7 +111,13 @@ class SmsSchedulerImpl constructor(
 
      override   fun enqueue(sms :Sms):Boolean {
 
+         sms.userList.forEach {
 
+
+             Log.i("Enqueue" ,"userId ${it.smsId}")
+
+         }
+         log("enqueue")
       return   try {
 
           priorityQueue.add(sms )
@@ -150,25 +171,17 @@ class SmsSchedulerImpl constructor(
                     phone = contact.phone,
                     userId = index)
 
-
                 val message = Message(
                     messages = sms.messages,
                     smsId = sms.messages.messageId,
                     userInfo = userInfo,
-                    messageStatus = messageStatus
-                )
+                    messageStatus = messageStatus)
 
-                smsDatabase.smsDao().insertSms(message)
-
-            }
-
-        }
-        }
+                messageDatabase.smsDao().insertSms(message)
+            } } }
 
 
-    /********** Update Mesasge in Database ***?
-     *
-     */
+    /********** Update Mesasge in Database *****/
     private fun updateDatabase(sms: Sms , messageStatus: MessageStatus = MessageStatus.PENDING){
 
         thread(start = true) {
@@ -187,7 +200,7 @@ class SmsSchedulerImpl constructor(
                     userInfo = userInfo,
                     messageStatus = messageStatus)
 
-                smsDatabase.smsDao().update(messageId = message.messages.messageId
+                messageDatabase.smsDao().update(messageId = message.messages.messageId
                     , userId = userInfo.userId ,status =MessageStatus.FAILED
 
                     )
@@ -198,13 +211,119 @@ class SmsSchedulerImpl constructor(
     }
 
 
+        override fun log(value :String ){
+            Log.i(TAG ,value ) }
+
+        override suspend fun  reSchedule(){
+            log("Reschedule")
+
+            val list = smsDatabase.smsDao().getSmsList()
+
+                if(priorityQueue.isNotEmpty()){
+                    priorityQueue.clear() }
+
+                list.forEach {
+                    priorityQueue.offer(it) }
+
+
+            log("Log Size"+priorityQueue.size)
 
 
 
-    override fun schedule(sms: Sms) {
 
 
-//       sendSms(sms)
+
+
+
+
+
+
+            priorityQueue.forEach {
+
+
+                val sms = it
+                sms.userList.forEach {
+                    Log.i("Reschedule", "${it.name}")
+                }
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if(!priorityQueue.isEmpty()) {
+                val sms = priorityQueue.peek()
+                    schedule(sms)
+            }else{
+                smsService.finish() }
+        }
+
+
+        /*************** Delete Sms **************/
+
+        private fun deleteSaeSmsInDb(sms : Sms ){
+
+            log("Sms Deleted")
+            log("Delete Sms In Db ")
+
+            thread(start = true) {
+                smsDatabase.smsDao().run {
+
+                    sms.userList.forEach {
+                    deleteContact(it.messageId ,it.smsId) }
+
+                    this.deleteMessage(sms.messages)
+                }
+
+
+            }
+        }
+
+        /** Save Schedule Sms into Db *****/
+        private fun saveScheduleSmsIntoDb(sms:Sms){
+
+
+
+            log("save schedule sms into db"+sms.userList )
+
+            thread(start = true){
+
+              val  ifSmsExists   =smsDatabase.smsDao().getMessage(sms.messages.messageId)
+
+
+
+                if(!ifSmsExists){
+
+                    insertIntoDatabase(sms, MessageStatus.PENDING)
+                    smsDatabase.smsDao().run {
+
+                        this.insertContact(sms.userList)
+                        this.insertMessage(sms.messages)
+                    }
+
+                }
+
+
+        }
+
+
+        }
+
+
+
+
+    override suspend  fun schedule(sms: Sms){
+        log("Schedule")
 
           val  enqueued  =  enqueue(sms)
 
@@ -212,18 +331,15 @@ class SmsSchedulerImpl constructor(
 
             val dequeueSms =  priorityQueue.peek()
 
-            insertIntoDatabase(sms ,MessageStatus.PENDING)
-           startCountDown(dequeueSms!!)
+            saveScheduleSmsIntoDb(sms)
+
+           startCountDown(dequeueSms)
 
         }else{
-
             throw SmsEnQueueException(smsId = sms.messages.messageId,
+                smsIndex = sms.messages.messageId,
+                message = sms.messages.message) }
 
-                smsIndex = sms.messages.messageId
-                ,
-                message = sms.messages.message)
-
-        }
 
     }
 
@@ -231,7 +347,7 @@ class SmsSchedulerImpl constructor(
 
             thread(start = true) {
 
-                smsDatabase.smsDao().update(
+                messageDatabase.smsDao().update(
                     messageId = messageId, userId = userId, status = status
 
                 )
@@ -246,17 +362,14 @@ class SmsSchedulerImpl constructor(
 
 
 
-        override fun startCountDown(sms :  Sms) {
-        if(isCountDownStart){
-            countDownTimer?.cancel()
+        override suspend fun startCountDown(sms :  Sms) =
+            withContext(Dispatchers.Main) {
 
-           isCountDownStart = false
+                log("StartCountDown")
+                counterStatus()
+                resetCounter(sms)
 
-        } else {
-            isCountDownStart =true }
-
-        resetCounter(sms)
-    }
+            }
 
 
     /***** Delete Algorithm
@@ -275,52 +388,40 @@ class SmsSchedulerImpl constructor(
      */
 
 
-    private fun getIndex(message :Message) : Int {
-        var messageIndex  = Integer.MIN_VALUE
-
-        priorityQueue.forEachIndexed { index, sms ->
-            if(message.messages.messageId  ==  sms.messages.messageId){
-                messageIndex = index } }
-
-        return messageIndex }
 
 
 
 
-    private fun removeSpecificIndex(message  : Message ,sms : Sms){
 
-        println("remove Specific index")
-          val index =         message.userInfo.userId
+    private fun removeSpecificIndex(message  : Message ,sms : Sms ):List<Contact>{
 
-           val smsContactList = sms.userList
+        val  contactList  = sms.userList
 
+        //New ArrayList Size
         val newArraySize = sms.userList.size -1
+
+        // New ArrayList
         val newArray = Array<Contact>(newArraySize){Contact()}
 
-        var   k = 0
+        //Loop Contact List
+        var k = 0
+        for(i:Int in contactList.indices step 1){
 
-        for(i :Int in smsContactList.indices step 1){
-
-            println("deleled index"+index  +"i"+i )
-
-            if(index == i ){
-                println("deleled index"+index)
+        val contact  =    contactList[i]
+            if(contact.smsId == message.userInfo.userId){
+              Log.i("Delete","smsID ${contact.smsId}    +userId ${message.userInfo.userId}")
                 continue }
 
-            newArray[k++]=smsContactList[i]
-        }
+          newArray[k++] =  contact }
 
-
-        sms.userList =newArray.toList()
-
-    }
+        return newArray.toList() }
 
     private fun printContact(sms : Sms){
 
-        println("println Contact ")
+        log("println Contact ")
         sms.userList.forEach {
 
-            println("contact"+it.name)
+            Log.i("Contact","contact"+it.name)
         }
 
     }
@@ -338,49 +439,113 @@ class SmsSchedulerImpl constructor(
      *
      * **/
 
-    private fun processFirstIndex(message: Message ,sms :Sms ){
 
-       val list = sms.userList
+    private fun deleteContact(message :Message ){
+        log("delete Contact")
+        Log.i("deletCOntact" ,"userId ${message.userInfo.userId}")
+        thread(start = true) {
 
-        if(list.size > 1 ){
+            smsDatabase.smsDao().deleteContact(message.messages.messageId
+                ,message.userInfo.userId)
 
-            removeSpecificIndex(message , sms )
-            removeToDataBase(message)
 
         }
-
-        else{
-
-            println("single contact ")
-
-            dequeue(sms )
-
-            removeToDataBase(message)
-        }
-
-
     }
+
+
+
+        /************ Deleted Smsm *****/
+        private fun deletedSms(priorityQueue: Queue<Sms>):HashMap<Long,Sms>{
+            val deletedMap     : HashMap<Long ,Sms> =HashMap<Long,Sms>()
+
+
+            priorityQueue.forEach { sms ->
+                deletedMap.put(sms.messages.messageId ,sms) }
+
+
+
+         return    deletedMap
+        }
+
+
+        private fun processDeletedSms(message:Message ,deletedSms :Sms  ,smsMap : HashMap<Long,Sms >){
+
+            val smsDeletedList =  removeSpecificIndex(message ,deletedSms)
+
+            deleteLog("remove list ${smsDeletedList}")
+
+            if(smsDeletedList.isNotEmpty()) {
+
+                smsMap.put(
+                    message.messages.messageId,
+                    deletedSms.copy(userList = smsDeletedList))
+
+                priorityQueue.clear()
+
+                smsMap.forEach {
+                    priorityQueue.offer(it.value) }
+
+
+                deleteContact(message)
+
+
+                //Print Contact
+                printContact(deletedSms)
+
+                // Remove Message to Sms Database
+                removeToDataBase(message)
+
+            } else{
+
+                dequeue(deletedSms)
+                deleteSaeSmsInDb(deletedSms)
+                removeToDataBase(message)
+
+
+            }
+
+        }
+
+
+        private fun deleteLog(value :String){
+
+            Log.i("deleted" ,value )
+
+        }
 
 
     override fun delete(message: Message) {
 
-        if(!priorityQueue.isEmpty()){
+        deleteLog("delete call ")
 
-         val index =   getIndex(message)
+        if (!priorityQueue.isEmpty()) {
+            deleteLog("Queue is not empty ")
 
-            if(index == 0){
-                processFirstIndex(message , priorityQueue.first())
-                println("is at first index")
+            val smsMap  =  deletedSms(priorityQueue)
 
-            }else if(index == Integer.MIN_VALUE){
-                println("not in queue ")
+
+            val deletedSms =        smsMap.get(message.messages.messageId)
+
+
+
+            if(deletedSms!=null) {
+                deleteLog("deleted sms ${deletedSms}")
+
+                deleteLog("deleted sms list ${deletedSms.userList}")
+
+
+                processDeletedSms(
+                    message = message,
+                    deletedSms = deletedSms,
+                    smsMap = smsMap)
+
+            }else {
+
+                deleteLog("deleted sms null ")
+
+
                 removeToDataBase(message)
-
-            }else{
-                processFirstIndex(message , priorityQueue.elementAt(index))
             }
-
-
 
         }else{
 
@@ -389,79 +554,84 @@ class SmsSchedulerImpl constructor(
 
         }
 
-
-
-
     }
 
     override fun removeToDataBase(message: Message) {
         thread(start = true) {
-            smsDatabase.smsDao().deleteMessage(message)
+            messageDatabase.smsDao().deleteMessage(message)
         }
         }
 
     override fun sendSms(sms: Sms) {
 
-//
-//        val  set  = HashSet<Int>()
-
-        sms.userList.forEachIndexed { index, contact ->
-  //          println("Sent code "+index)
-
-//            println("set"+set)
-
-//            set.add(index)
-
-//            sentMessages[sms.messages.messageId] = set
+        log("send Sms ")
 
 
+        thread(start =true ) {
+
+            sms.userList.forEachIndexed { index, contact ->
+
+                val sentIntent = Intent(smsService.applicationContext ,SendBroadCast::class.java)
+
+                sentIntent.putExtra(SmsService.MESSAGE_ID, sms.messages.messageId)
+                sentIntent.putExtra(SmsService.USER_ID, contact.smsId)
+
+
+                val deliveryIntent = Intent(smsService.applicationContext ,PendingBroadCast::class.java)
+
+
+                val sentPI = PendingIntent.getBroadcast(
+                    smsService.applicationContext,
+                    index,
+                    sentIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                val deliveryPI =
+                    PendingIntent.getBroadcast(
+                        smsService.applicationContext,
+                        0,
+                        deliveryIntent,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
 
 
 
+                try {
 
-            val sentIntent = Intent(SmsService.SENT)
+                    val messageList = smsManager.divideMessage(sms.messages.message)
 
-            sentIntent.putExtra(SmsService.MESSAGE_ID ,sms.messages.messageId)
-            sentIntent.putExtra(SmsService.USER_ID , index)
+                    messageList.forEach { it ->
 
-
-            val deliveryIntent = Intent(SmsService.DELIVERED)
-
-
-            val sentPI = PendingIntent.getBroadcast(smsService.applicationContext, index, sentIntent,  PendingIntent.FLAG_IMMUTABLE or   PendingIntent.FLAG_UPDATE_CURRENT)
-            val deliveryPI =
-                PendingIntent.getBroadcast(smsService.applicationContext, 0, deliveryIntent,  PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-
-
-
-            try {
-
-                smsManager.sendTextMessage(
-                    contact.phone,
-                    null,
-                    sms.messages.message,
-                    sentPI,
-                    deliveryPI)
+                        smsManager.sendTextMessage(
+                            contact.phone,
+                            null,
+                            it,
+                            sentPI,
+                            deliveryPI
+                        )
+                    }
 
 
-            } catch (e: IllegalArgumentException) {
-
-                println("illegal argument exception "+index)
+                    deleteSaeSmsInDb(sms)
 
 
-                update(messageId = sms.messages.messageId,
+                } catch (e: IllegalArgumentException) {
 
-                    userId = index
-                   ,status = MessageStatus.FAILED)
+                    println("illegal argument exception " + index)
+
+
+                    update(
+                        messageId = sms.messages.messageId,
+
+                        userId = index, status = MessageStatus.FAILED
+                    )
+
+                }
 
             }
 
+
         }
-
-
-
-
-
     }
 
 
@@ -485,7 +655,7 @@ class SmsSchedulerImpl constructor(
                         userInfo = userInfo,
                         messageStatus = MessageStatus.FAILED)
 
-                    smsDatabase.smsDao().insertSms(message)
+                    messageDatabase.smsDao().insertSms(message)
 
                 }
 
@@ -494,12 +664,13 @@ class SmsSchedulerImpl constructor(
         }
 
 
-        private fun resetCounter(sms: Sms){
+     override         fun resetCounter(sms: Sms){
 
+            println("reset Counter")
             isCountDownStart = true
 
+                smsService.notify(sms)
 
-        smsService.notify(sms.messages.time , sms.messages.date)
 
         val timeLeft = DateUtils.countDownTime(sms)
 
@@ -507,85 +678,84 @@ class SmsSchedulerImpl constructor(
 
             override fun onTick(millisUntilFinished: Long) {
                 val format = DateUtils.convert12HourFormat(millisUntilFinished)
-                println("tick" + format) }
+                println("tick" + format)
+
+
+            }
 
             override fun onFinish() {
 
+                log("Finish")
                 val sms =   priorityQueue.poll()
 
-
-                println("before sms send ")
-                /// error may occured here
                 sendSms(sms)
 
-                onUnScheduled()
+           //     onUnScheduled()
+                validateQueue()
+
             }
 
         }.start()
     }
 
 
+
+
         override fun onUnScheduled(){
-
-
-            println("after sms send")
-
-            if(!priorityQueue.isEmpty()){
-                resetCounter(priorityQueue.peek()!!)
-            }else{
-                isCountDownStart =false
-     //  smsService.finish()
-            }
-
+            log("OnUnSchedule")
         }
 
 
+        /********* Dequeue ***********/
+        private fun dequeue(sms : Sms ){
 
+     val isRemoved =  priorityQueue.remove(sms)
 
-
-
-
-
-
-
-
-
-
-
-
-     fun dequeue(sms : Sms ){
-        priorityQueue.remove(sms)
-        //updateDatabase(sms , MessageStatus.SENT)
-
-        sendSms(sms)
-
+            log("Removed"+isRemoved)
          validateQueue()
 
      }
 
-    /**********/
+
+        /******** Status **************/
+        private fun counterStatus(){
+            if(isCountDownStart){
+                countDownTimer?.cancel()
+
+                isCountDownStart = false
+
+            } else {
+                isCountDownStart =true }
+        }
 
 
+
+
+    /*******Validate Qeueue  ***/
     private fun validateQueue(){
+        log("Validate "+priorityQueue.size)
+
         if(!priorityQueue.isEmpty()){
-            resetCounter(priorityQueue.peek()!!)
-        }else{
-            finishScheduling()
-        }
+
+              counterStatus()
+              resetCounter(priorityQueue.peek()!!)
+
+            }else{
+            log("FInish scheduling")
+            isCountDownStart =false
+            countDownTimer?.cancel()
+            smsService.finish() }
+    }
+
+
+
+
 
 
     }
 
 
 
-
-        private fun finishScheduling(){
-        isCountDownStart =false
-        smsService.finish()
-
-        }
-
-    }
 
 
 

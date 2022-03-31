@@ -26,6 +26,7 @@
             android:textSize="@dimen/message_headline_size"
             app:layout_constraintVertical_chainStyle="packed"
             android:textStyle="normal"
+            android:fontFamily="@font/sf_pro_display_medium"
             android:textColor="@color/message_text_color"
             app:layout_constraintBottom_toTopOf="@+id/messageId"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,24 +35,25 @@
         <EditText
             android:id="@+id/messageId"
             android:layout_width="0dp"
-            android:layout_height="158dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/search_style"
             android:hint="@string/message_hint"
             android:textSize="16sp"
             android:padding="8dp"
+            android:onClick="@{()->messageViewModel.openTypeMessageDialog()}"
             android:paddingStart="@dimen/message_left_padding"
             android:paddingTop="@dimen/message_top_padding"
+            android:onTextChanged="@{messageViewModel::messageValueChange}"
             android:paddingEnd="0dp"
-            android:lines="5"
-            android:minHeight="200dp"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:minHeight="158dp"
             android:minLines="1"
             android:gravity="top|start"
-            android:maxLines="10"
-            android:scrollbars="none"
+            android:scrollbars="vertical"
+            android:autofillHints="description"
             android:inputType="textMultiLine|textCapSentences"
             android:layout_marginTop="4dp"
             android:textColorHint="@color/message_hint"
-            android:onTextChanged="@{messageViewModel::messageValueChange}"
             android:textColor="@color/message_hint"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,6 +61,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/messageHeadlineId"
             app:layout_constraintVertical_bias="0.0" />
+
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

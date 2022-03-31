@@ -1,5 +1,6 @@
 package sb.app.messageschedular.database
 
+
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -10,7 +11,7 @@ import sb.app.messageschedular.model.Contact
 import sb.app.messageschedular.model.Message
 import sb.app.messageschedular.model.Messages
 
-@Database(entities = [Message::class], version = 1, exportSchema = false)
+@Database(entities = [Messages::class , Contact::class], version = 1, exportSchema = false)
 @TypeConverters(EnumTypeConverter::class)
 abstract class SmsDatabase : RoomDatabase(){
 
@@ -20,7 +21,7 @@ abstract class SmsDatabase : RoomDatabase(){
 
     companion object {
 
-      private   const val DATABASE_NAME ="sms_database"
+        private   const val DATABASE_NAME ="message_database"
         @Volatile private var instance: SmsDatabase? = null
 
         fun getInstance(context: Context): SmsDatabase {

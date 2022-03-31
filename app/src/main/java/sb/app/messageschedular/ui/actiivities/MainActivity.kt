@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 
 //
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,12 +15,18 @@ import sb.app.messageschedular.viewmodel.MessageScheduleViewModel
 
 
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
+import androidx.work.Constraints
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import sb.app.messageschedular.BR
 import sb.app.messageschedular.R
 import sb.app.messageschedular.api.UnSplashApi
 import sb.app.messageschedular.model.Message
 import sb.app.messageschedular.model.Sms
 import sb.app.messageschedular.service.SmsService
+//import sb.app.messageschedular.workmanager.SchedulerWorker
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -55,18 +62,34 @@ class MainActivity : BaseActivity<MainActivityDataBinding, MessageScheduleViewMo
 
 
      fun scheduleService(sms: Sms) {
+
+
+
+
         if(!mService.isServiceRunning()){
+
             val intent = Intent(this , SmsService::class.java)
             intent.action = SmsService.ADD_SERVICE
             intent.putExtra(SmsService.Add_kEY, sms)
-            startService(intent)
+
+         ContextCompat.startForegroundService(this.applicationContext ,intent)
+//
         }
-        else{ mService.schedule(sms)   }
+        else{ mService.schedule(sms)
+
+
+        }
+
+
 
 
     }
 
      fun delete(message: Message) {
+
+
+         Log.i("MAin","${         message.userInfo.userId}")
+
 
          mService.delete(message)
 

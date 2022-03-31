@@ -6,12 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.RingtoneManager
-import android.os.Binder
-import android.os.Build
-import android.os.IBinder
+import android.os.*
 import android.telephony.SmsManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.room.RoomSQLiteQuery.acquire
 import kotlinx.coroutines.*
 import sb.app.messageschedular.enums.MessageStatus
 import sb.app.messageschedular.exceptions.SmsEnQueueException
@@ -23,9 +23,9 @@ import sb.app.messageschedular.util.DateUtils
 
 
 class SmsService  : Service() {
-
+    private var wakeLock: PowerManager.WakeLock? = null
     private lateinit var smsScheduler :SmsScdeduler
-    private var isServiceStarted  =false
+    private var isServiceStarted  = false
     private   var    notificationBuilder :NotificationCompat.Builder?=null
     private var serviceScope = CoroutineScope(Dispatchers.Main)
     private var  notificationManager :NotificationManager?=null
@@ -37,112 +37,23 @@ class SmsService  : Service() {
     companion object{
        const  val MESSAGE_ID: String ="messageId"
         const val USER_ID:String ="userId"
-        const val DELIVERED: String ="sb.app.messageschedular.sms_schedulers.DELIVERYKEY"
+       // const val DELIVERED: String ="sb.app.messageschedular.sms_schedulers.DELIVERYKEY"
         const val ADD_SERVICE = "sb.spp.message_scheduler.add"
+
+        const val REBOOT ="sb.app.message_scheduler.reboot"
         const val DELETE_SERVICE ="sb.spp.message_scheduler.delete"
         const val Add_kEY ="ADD_KEY"
-        const val SENT ="sb.app.messageschedular.sms_schedulers.SENT"
+     //   const val SENT ="sb.app.messageschedular.sms_schedulers.SENT"
         private  const val channelId = "default_notification_channel_id"
-
+        private const val NOTIFICATION_ID =1995
     }
-
-
-
-    /************* Sent BroaddCast **************/
-    private val sentBroadcast =object : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            println("Send Broadcast")
-
-
-
-
-                    when(resultCode){
-                        Activity.RESULT_OK ->{
-                            if(intent!=null ) {
-                                val messageId = intent.getLongExtra(MESSAGE_ID, 0)
-                                val userId = intent.getIntExtra(USER_ID, 0)
-
-                                val scheduleMessage = smsScheduler.getSentMessages()
-                                println("Sucessfull message "  + messageId +"userId"+userId)
-
-
-                                smsScheduler.update(
-
-                                    messageId =messageId ,
-                                    userId = userId,
-                                    status = MessageStatus.SENT
-
-                                )
-
-                            }
-                        }
-
-                        else ->{
-
-                            if(intent!=null){
-
-                                val messageId = intent.getLongExtra(MESSAGE_ID, 0)
-                                val userId = intent.getIntExtra(USER_ID, 0)
-
-
-                                println("Failed")
-                                smsScheduler.update(
-
-                                    messageId =messageId ,
-                                    userId = userId,
-                                    status = MessageStatus.FAILED
-
-                                )
-
-
-                            }
-
-
-                        }
-
-                    }
-
-
-
-
-
-
-            smsResponseCode(resultCode) } }
-
-
-    /***** Sent BroadCast End *************/
-
-
-    /************* Delivery BroaddCast **************/
-    private val deliveryBroadcast =object : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            println("Delivery Broadcast")
-
-
-            if(intent!=null ){
-                val userContact =    intent.getParcelableExtra<Sms>("test")
-                println("user contacct "+userContact!!.userList[0]) }
-
-            smsResponseCode(resultCode) } }
-
-
-    /************* Delivery BroaddCast ENd  **************/
-
 
 
     override fun onCreate() {
         super.onCreate()
 
+
         smsScheduler =  SmsScdeduler.getInstance(this )
-
-        applicationContext.registerReceiver(sentBroadcast , IntentFilter(SENT))
-        applicationContext.registerReceiver(deliveryBroadcast , IntentFilter(DELIVERED))
-
-
-
-
 
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         notificationBuilder  = NotificationCompat.Builder(this, channelId)
@@ -156,23 +67,61 @@ class SmsService  : Service() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        isServiceStarted =true
-        
-     val action =   intent?.action
 
-        when(action){
-            ADD_SERVICE ->{
-
-               val sms = intent.getParcelableExtra<Sms>(Add_kEY)
-                if(sms!=null) {
-                    schedule(sms) } }
-
-            DELETE_SERVICE ->{  }
-        }
+        Log.i("Boot","intent is ${intent?.action}")
 
         showNotification()
-        return super.onStartCommand(intent, flags, startId)
-    }
+
+        wakeLock =
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock").apply {
+                    acquire()
+                }
+            }
+
+        println("intent ${intent }")
+        isServiceStarted =true
+
+      if(intent!=null) {
+          val action = intent?.action
+
+
+          when(action){
+
+              SmsService.ADD_SERVICE ->{
+                  val sms = intent.getParcelableExtra<Sms>(Add_kEY)
+                  schedule(sms!!)
+
+              }
+
+              else ->{
+
+                  Log.i("Boot","Service boot ")
+                  serviceScope.launch(Dispatchers.IO) {
+                      smsScheduler.reSchedule()
+                  }
+
+              }
+
+
+          }
+
+
+
+      }else{
+
+
+
+
+
+          serviceScope.launch(Dispatchers.IO) {
+              smsScheduler.reSchedule()
+          }
+
+
+      }
+
+        return START_STICKY }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotification() {
@@ -186,7 +135,7 @@ class SmsService  : Service() {
             notificationManager?.createNotificationChannel(channel)
         }
 
-        this.startForeground(111 ,notificationBuilder!!.build())
+        this.startForeground(NOTIFICATION_ID ,notificationBuilder!!.build())
 
 
     }
@@ -209,9 +158,6 @@ class SmsService  : Service() {
            println("Service Scope is cancelled ")
            serviceScope.cancel() }
 
-        applicationContext.unregisterReceiver(sentBroadcast)
-        applicationContext.unregisterReceiver(deliveryBroadcast)
-
     }
 
 
@@ -219,7 +165,7 @@ class SmsService  : Service() {
         println("Schedule Service ")
 
 
-        serviceScope.launch {
+        serviceScope.launch(Dispatchers.IO) {
 
             supervisorScope {
 
@@ -234,14 +180,10 @@ class SmsService  : Service() {
 
                             smsScheduler.failedInsert(sms)
 
-
-
                     }catch (e:Exception){
                         smsScheduler.failedInsert(sms)
 
-                        println("Exception ")
-
-                    }
+                        println("Exception ") }
 
 
 
@@ -254,32 +196,30 @@ class SmsService  : Service() {
     }
 
     fun finish() {
-        println("service finished ")
+        smsScheduler.log("service finished ")
 
-        println("Stop  self")
+        smsScheduler.log("Stop  self")
 
-        println("Stop foreground service")
+        smsScheduler.log("service state  false ")
+        isServiceStarted =false
+
+        smsScheduler.log("Stop foreground service")
         stopForeground(true )
 
-        println("service state  false ")
-        isServiceStarted =false
         stopSelf()
     }
 
-    fun notify(time: Time? , date : Long? ) {
+    fun notify(sms : Sms) {
+        val time =  sms.messages.time
+        val formatTime =  DateUtils.constructTime(time)
 
-        println("notification time ${time} "+   "date"+   date)
-        if(time != null && date !=null ){
-
-         val formatDate  =   DateUtils.convertDateIntoFormat(date)
-        val timeFormat =    String.format("Message will be sent at %d:%d  %s" ,time.hours ,time.minutes,formatDate )
-            notificationBuilder?.setContentText(timeFormat)
-            notificationManager?.notify(111 ,notificationBuilder?.build())
-            //Notification Area
-
-         }
+         val formatDate  =   DateUtils.convertDateIntoFormat(sms.messages.date)
+        val calenderFormat =    String.format("Message will be sent at %s  %s" ,formatTime ,formatDate )
 
 
+        notificationBuilder?.setContentText(calenderFormat)
+
+        notificationManager?.notify(NOTIFICATION_ID,notificationBuilder?.build())
     }
 
     fun delete(message: Message) {
@@ -420,10 +360,20 @@ private fun smsResponseCode(responseCode :Int ){
 }
 
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
 
+        println("root Intent ")
+//        val restartServiceIntent = Intent(applicationContext, SmsService::class.java).also {
+//            it.setPackage(packageName)
+//        };
+//        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+//        applicationContext.getSystemService(Context.ALARM_SERVICE);
+//        val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
+//        alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
+//
 
-
-
+    }
 
 
 

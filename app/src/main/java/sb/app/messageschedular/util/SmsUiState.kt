@@ -16,7 +16,7 @@ data class  SmsUiState(
     var isFocused :Boolean =false,
 //    var errorMessage :String?=null,
     val selectedList :  List<Contact> = emptyList(),
-//    var messageInput : String ="",
+    var messageInput : String ="",
 //    var time : Time?=null,
 //    var date: Long?=null
 ) : Parcelable {

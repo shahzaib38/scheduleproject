@@ -89,6 +89,7 @@
             android:text="@={progessViewModel.uiSearchState.searchInput}"
             android:paddingBottom="17dp"
             android:paddingEnd="17dp"
+            android:fontFamily="@font/sf_pro_display_medium"
             android:background="@drawable/edit_text_background"
             android:hint="@string/search"
             app:onFocusChangeListener="@{progessViewModel::onSearchFocusedChange}"

@@ -27,6 +27,7 @@ import sb.app.messageschedular.model.Sms
 import sb.app.messageschedular.navigator.MessageNavigator
 import sb.app.messageschedular.service.SmsService
 import sb.app.messageschedular.ui.actiivities.MainActivity
+import sb.app.messageschedular.ui.dialog.TypeMessageDialog
 import sb.app.messageschedular.util.Permissions
 import sb.app.messageschedular.viewmodel.MessageScheduleViewModel
 
@@ -39,8 +40,6 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
     private val mViewModel : MessageScheduleViewModel by viewModels<MessageScheduleViewModel>()
     private var mDataBinding : SmsDataBinding?=null
 
-//    private lateinit var mService: SmsService
-//     private var  mBound : Boolean =false
 
     private var mActivity : MainActivity?=null
 
@@ -63,6 +62,12 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
 
         mActivity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.appbar_color)
 
+
+        mViewModel.messageInput.observe(viewLifecycleOwner){
+
+            println("value "+it )
+
+        }
     }
 
 
@@ -117,19 +122,18 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
       val datePicker =  MaterialDatePicker.Builder.datePicker().build()
         datePicker.addOnPositiveButtonClickListener {date:Long ->
             mViewModel.updateDate(date) }
-        datePicker.show(childFragmentManager ,"DatePicker")
-    }
+        datePicker.show(childFragmentManager ,"DatePicker") }
 
     override fun scheduleService(sms: Sms) {
-                mActivity?.scheduleService(sms)
+        mActivity?.scheduleService(sms)
+        this.findNavController().navigate(R.id.action_smsFragment_to_message_layoutId) }
 
-                this.findNavController().navigate(R.id.action_smsFragment_to_message_layoutId)
+    override fun openTypeMessageDialog() {
+
+//      val action=  SmsFragmentDirections.actionSmsFragmentToTypeMessageFragmentId()
+//        findNavController().navigate(action)
+
     }
-
-
-
-
-
 
 
 }

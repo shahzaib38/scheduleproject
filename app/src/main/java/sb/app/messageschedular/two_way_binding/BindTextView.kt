@@ -1,27 +1,13 @@
 package sb.app.messageschedular.two_way_binding
 
-import android.icu.text.DateFormat
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import kotlinx.coroutines.flow.update
-import sb.app.messageschedular.enums.Meridiem
 import sb.app.messageschedular.model.Time
 import sb.app.messageschedular.util.DateUtils
+import sb.app.messageschedular.util.DateUtils.constructTime
 import sb.app.messageschedular.util.DateUtils.convertDateIntoFormat
-import java.util.*
 
 
-private fun constructTime(time: Time):String{
-
- return    if(time.is24Hours){
-
-        String.format("%d:%d",time.hours ,time.minutes)
-
-    }else{
-
-        DateUtils.twelveHourFormat(hours = time.hours, time.minutes) }
-
-}
 
 
 @BindingAdapter("app:update")
@@ -50,4 +36,7 @@ fun updateTime(textView: TextView , time :Time?){
             DateUtils.convert12HourFormat(System.currentTimeMillis()) }
 
         textView.text =timeFormat
-    } }
+
+    }
+
+}

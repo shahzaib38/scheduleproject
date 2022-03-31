@@ -31,6 +31,7 @@
             android:layout_marginEnd="@dimen/schedule_margin"
             android:background="@drawable/schedule_style"
             android:text="@string/schedule"
+            android:fontFamily="@font/sf_pro_display_bold"
             android:textColor="@color/white"
             android:textAllCaps="false"
             android:onClick="@{()->scheduleViewModel.schedule(smsUiState ,message)}"

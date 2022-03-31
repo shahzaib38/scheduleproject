@@ -1,22 +1,13 @@
 package sb.app.messageschedular.ui.fragments
 
-import android.app.Activity
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+
 import android.os.Bundle
-import android.telephony.SmsManager
-import android.telephony.SmsManager.*
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import sb.app.messageschedular.BR
@@ -24,10 +15,9 @@ import sb.app.messageschedular.R
 import sb.app.messageschedular.adapter.MessageListAdapter
 import sb.app.messageschedular.databinding.MessageDataBinding
 import sb.app.messageschedular.enums.ListEnum
-import sb.app.messageschedular.model.Message
+import sb.app.messageschedular.model.*
 import sb.app.messageschedular.navigator.ListNavigator
 import sb.app.messageschedular.ui.actiivities.MainActivity
-import sb.app.messageschedular.ui.dialog.MessageListDialog
 import sb.app.messageschedular.viewmodel.MessageListViewModel
 
 
@@ -89,7 +79,18 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
 
         mViewModel.smsList.observe(viewLifecycleOwner) {messageList ->
 
-            mAdapter?.submitList(messageList)
+            if(messageList!=null && messageList.isNotEmpty()) {
+
+                mMessageBinding?.messageListId?.visibility =View.VISIBLE
+                mMessageBinding?.nomessageId?.visibility =View.GONE
+
+                mAdapter?.submitList(messageList)
+
+            }else{
+                mMessageBinding?.messageListId?.visibility =View.GONE
+                mMessageBinding?.nomessageId?.visibility =View.VISIBLE
+
+            }
 
         }
 
@@ -132,7 +133,10 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
                 listAdapter.selectAll() }
 
             ListEnum.DELETE ->{
-                listAdapter.deleteAll() } } }
+                listAdapter.deleteAll() } }
+
+
+    }
 
     override fun showDialog(message: Message) {
 

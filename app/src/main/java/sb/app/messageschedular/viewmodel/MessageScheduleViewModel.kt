@@ -1,6 +1,8 @@
 package sb.app.messageschedular.viewmodel
 
+import android.util.Log
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +24,9 @@ class MessageScheduleViewModel
 
    private val _UiSearchState  = MutableStateFlow<SmsUiState>(SmsUiState())
     val uiSearchState =_UiSearchState.asLiveData()
+
+    private val _MessageInput =MutableLiveData<String>()
+    val messageInput =_MessageInput
 
     private val _Message  = MutableStateFlow<Messages>(Messages())
      val message =_Message.asLiveData()
@@ -187,13 +192,38 @@ class MessageScheduleViewModel
 
 
   private fun createSms(message: Messages ,smsUiState: SmsUiState): Sms {
+
+
+
+
       val newId = DateUtils.generateId()
+      val contactList =ArrayList<Contact>()
+      smsUiState.selectedList.forEachIndexed { index, contact ->
+
+
+          contactList.add(Contact(contactId = contact.contactId ,
+              name =contact.name,
+              phone=contact.phone,
+              messageId = newId ,
+          smsId = index
+              ))
+      }
+
+
+
+
       return Sms(messages = message.copy(messageId = newId) ,
-          smsUiState.selectedList) }
+          contactList) }
 
 
 
 
+    fun openTypeMessageDialog(){
+
+        getNavigator().openTypeMessageDialog()
+
+
+    }
 
 
    }
