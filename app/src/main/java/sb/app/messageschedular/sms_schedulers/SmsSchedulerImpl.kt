@@ -6,6 +6,7 @@ import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import sb.app.messageschedular.broadcast_reciever.PendingBroadCast
 import sb.app.messageschedular.broadcast_reciever.SendBroadCast
@@ -17,6 +18,7 @@ import sb.app.messageschedular.model.*
 import sb.app.messageschedular.service.SmsService
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.ONE_SECOND
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.TAG
+import sb.app.messageschedular.util.CollectionUtils
 import sb.app.messageschedular.util.DateUtils
 import java.util.*
 import kotlin.NullPointerException
@@ -40,7 +42,7 @@ interface SmsScdeduler {
     suspend  fun reSchedule()
     fun log(value :String)
     fun resetCounter(sms:Sms )
-
+   fun  checkDatabase()
     companion object{
         const val ONE_SECOND =1000L
          var  TAG = SmsSchedulerImpl::class.java.name
@@ -390,31 +392,31 @@ class SmsSchedulerImpl constructor(
 
 
 
-
-
-
-    private fun removeSpecificIndex(message  : Message ,sms : Sms ):List<Contact>{
-
-        val  contactList  = sms.userList
-
-        //New ArrayList Size
-        val newArraySize = sms.userList.size -1
-
-        // New ArrayList
-        val newArray = Array<Contact>(newArraySize){Contact()}
-
-        //Loop Contact List
-        var k = 0
-        for(i:Int in contactList.indices step 1){
-
-        val contact  =    contactList[i]
-            if(contact.smsId == message.userInfo.userId){
-              Log.i("Delete","smsID ${contact.smsId}    +userId ${message.userInfo.userId}")
-                continue }
-
-          newArray[k++] =  contact }
-
-        return newArray.toList() }
+//
+//
+//
+//    private fun removeSpecificIndex(message  : Message ,sms : Sms ):List<Contact>{
+//
+//        val  contactList  = sms.userList
+//
+//        //New ArrayList Size
+//        val newArraySize = sms.userList.size -1
+//
+//        // New ArrayList
+//        val newArray = Array<Contact>(newArraySize){Contact()}
+//
+//        //Loop Contact List
+//        var k = 0
+//        for(i:Int in contactList.indices step 1){
+//
+//        val contact  =    contactList[i]
+//            if(contact.smsId == message.userInfo.userId){
+//              Log.i("Delete","smsID ${contact.smsId}    +userId ${message.userInfo.userId}")
+//                continue }
+//
+//          newArray[k++] =  contact }
+//
+//        return newArray.toList() }
 
     private fun printContact(sms : Sms){
 
@@ -468,26 +470,37 @@ class SmsSchedulerImpl constructor(
         }
 
 
+        private fun  updateHashMapAndPriorityQueue(smsMap : HashMap<Long,Sms > ,message:Message
+        ,deletedSms :Sms,smsDeletedList : List<Contact>
+        ){
+
+            smsMap.put(
+                message.messages.messageId,
+                deletedSms.copy(userList = smsDeletedList))
+            deleteLog("remove list 2 ${smsMap.get(message.messages.messageId)}")
+
+            priorityQueue.clear()
+
+            smsMap.forEach {
+                priorityQueue.offer(it.value) }
+        }
+
+
         private fun processDeletedSms(message:Message ,deletedSms :Sms  ,smsMap : HashMap<Long,Sms >){
 
-            val smsDeletedList =  removeSpecificIndex(message ,deletedSms)
+            val smsDeletedList =  CollectionUtils.removeSpecificIndex(message ,deletedSms)
 
-            deleteLog("remove list ${smsDeletedList}")
+            deleteLog("remove list 1 ${deletedSms.userList.size}")
 
             if(smsDeletedList.isNotEmpty()) {
 
-                smsMap.put(
-                    message.messages.messageId,
-                    deletedSms.copy(userList = smsDeletedList))
-
-                priorityQueue.clear()
-
-                smsMap.forEach {
-                    priorityQueue.offer(it.value) }
-
+                updateHashMapAndPriorityQueue(
+                    smsMap = smsMap ,
+                    message =message ,
+                    deletedSms = deletedSms ,
+                    smsDeletedList =smsDeletedList)
 
                 deleteContact(message)
-
 
                 //Print Contact
                 printContact(deletedSms)
@@ -496,14 +509,9 @@ class SmsSchedulerImpl constructor(
                 removeToDataBase(message)
 
             } else{
-
                 dequeue(deletedSms)
                 deleteSaeSmsInDb(deletedSms)
-                removeToDataBase(message)
-
-
-            }
-
+                removeToDataBase(message) }
         }
 
 
@@ -522,17 +530,13 @@ class SmsSchedulerImpl constructor(
             deleteLog("Queue is not empty ")
 
             val smsMap  =  deletedSms(priorityQueue)
-
-
-            val deletedSms =        smsMap.get(message.messages.messageId)
-
+            val deletedSms = smsMap.get(message.messages.messageId)
 
 
             if(deletedSms!=null) {
                 deleteLog("deleted sms ${deletedSms}")
 
                 deleteLog("deleted sms list ${deletedSms.userList}")
-
 
                 processDeletedSms(
                     message = message,
@@ -542,8 +546,6 @@ class SmsSchedulerImpl constructor(
             }else {
 
                 deleteLog("deleted sms null ")
-
-
                 removeToDataBase(message)
             }
 
@@ -744,140 +746,43 @@ class SmsSchedulerImpl constructor(
             log("FInish scheduling")
             isCountDownStart =false
             countDownTimer?.cancel()
-            smsService.finish() }
+            smsService.finish()
+
+
+            }
+
+
+
+    }
+
+        override  fun checkDatabase(){
+
+            thread(start = true) {
+                val remainingSms = smsDatabase.smsDao().getSmsList()
+
+                    if (!remainingSms.isEmpty()) {
+
+                        remainingSms.forEach {
+                            updateDatabase(it , messageStatus = MessageStatus.FAILED)
+
+                        }
+
+                        smsDatabase.clearAllTables()
+//                        smsDatabase.smsDao().deletaAll()
+
+                    }
+
+
+
+            }
+        }
+
+
+
+
+
+
     }
 
 
-
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-/************** Rough ******************/
-
-
-
-//
-//            val added = priorityQueue.offer(null)
-//
-//            if (added) {
-//                val prioritySms = priorityQueue.peek()
-//
-//                if (prioritySms != null) {
-//                    startCountDown(prioritySms)
-//                }
-//
-//            } else {
-//            }
-//
-
-
-
-
-
-
-//        if(sms is Sms) {
-//
-//            val isAdded = add(sms)
-//
-//
-//            if (isAdded) {
-//
-//                thread(start = true) {
-//                    smsDatabase.smsDao().insertSms(sms.messages)
-//                }
-//
-//                val topMessage =  getTop()
-//                if(topMessage is Sms ) {
-//                    startCountDown(topMessage) }
-//
-//            } else {
-//                println("Not added text")
-//
-//
-//            }
-//        }
-
-
-
-
-
-
-//    /**** Populate Queue with sms items ****/
-//    private fun populateQueue(arrayList: List<Sms>) {
-//        for (sms in arrayList) {
-//            val isAdded = queue.offer(sms)
-//            println(isAdded)
-//
-//        }
-//    }
-
-
-//    /**** sort SmsUiState Array*****/
-//    fun List<Sms>.sorted() {
-//        val arr: ArrayList<Sms> = this as ArrayList<Sms>
-//
-//        var i = 0
-//        var j = 0
-//        while (i < arr.size) {
-//            var min = i
-//            j = i + 1
-//            while (j < arr.size) {
-//                val jArray = DateUtils.formatSmsDate(arr[j])
-//                val minArray = DateUtils.formatSmsDate(arr[min])
-//                if (jArray.time < minArray.time) {
-//                    min = j
-//                }
-//
-//
-//
-//                j++
-//            }
-//
-//            val temp = arr[min]
-//            arr[min] = arr[i]
-//            arr[i] = temp
-//            i++
-//        }
-//    }
-
-/**** if ine  add single sms in queue
- * else add it to queue then change queue into array to sort
- * clear the queue and populate new values
- */
-//    override fun add(sms: Sms):Boolean  {
-//
-////        return  if (queue.isEmpty()) {
-////            queue.offer(sms)
-////        } else {
-////            val add =     queue.offer(sms)
-////            val arrayList :List<Sms> = ArrayList<Sms>(queue)
-////            arrayList.sorted()
-////            queue.clear()
-////            populateQueue(arrayList)
-////
-////            add
-////        }
-//
-//
-//        return false
-//    }
-
-
-
-//        if(isAdded){
-//
-//            insertIntoDatabase(sms)
-//
-//        }
-//        priorityQueue.element()
 

@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@{message.messages.message}"
-            android:textSize="15sp"
+            android:textSize="@dimen/message_description_text_size"
             android:textColor="#909093"
             android:fontFamily="@font/poppins_regular"
             android:textStyle="normal" />

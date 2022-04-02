@@ -22,6 +22,17 @@ class MessageScheduleViewModel
 
     : BaseViewModel<MessageNavigator>(messageRepository){
 
+
+    companion object{
+     const val  CONTACT_RANGE =  "select at least 1 contact"
+      const val MESSAGE_EMPTY = "message must not be empty "
+        const val VALID_TIME = "choose a valid time"
+        const val    TIME_RANGE ="choose valid time at least 5 minutes from now "
+
+
+    }
+
+
    private val _UiSearchState  = MutableStateFlow<SmsUiState>(SmsUiState())
     val uiSearchState =_UiSearchState.asLiveData()
 
@@ -33,6 +44,21 @@ class MessageScheduleViewModel
 
     private var _ProgressLoading =MutableStateFlow<Boolean>(value =false )
      val progress =_ProgressLoading.asLiveData()
+
+    private var  _SmsError = MutableSharedFlow<String>()
+    val smsError =_SmsError.asSharedFlow()
+
+
+
+    fun sendError(errorMessage:String ){
+
+        viewModelScope.launch {
+            _SmsError
+                .emit(errorMessage)
+        }
+
+    }
+
 
 
     init {
@@ -72,10 +98,20 @@ class MessageScheduleViewModel
         onValueChanged(s.toString().trim())
         showProgress(true  )
         viewModelScope.launch {
-            messageRepository.getContacts(s.toString().trim()).catch {
-            }.flowOn(Dispatchers.IO).collect { result ->
+            messageRepository.getContacts(s.toString().trim())
+                .catch {
 
-                           _UiSearchState.update {
+                     }.flowOn(Dispatchers.IO).collect { result ->
+
+                result.forEach {
+                    Log.i("MaoList" , "Result contactId ${it.contactId}  name ${it.name}       ")
+
+                }
+
+
+
+
+                _UiSearchState.update {
                  val searchDisplay =         it.getDisplaySearch()
 
                    it.processResult(searchDisplay ,result)
@@ -163,51 +199,42 @@ class MessageScheduleViewModel
         val selectedListIsEmpty = smsUiState.selectedList.isEmpty()
 
         if(selectedListIsEmpty) {
-            println("please select atleast 1 contact")
+            sendError(CONTACT_RANGE)
+
             return }
 
       val messageIsEmpty=  message.message.isEmpty()
         if(messageIsEmpty){
-            println("message must not be eepty ")
+            sendError(MESSAGE_EMPTY)
             return }
 
         val time  = message.time
         if(time==null ) {
-            println("please choose a valid time")
+            sendError(VALID_TIME)
             return }
 
         val date =   DateUtils.countDownTime(message)
         val isValid =   DateUtils.isValidTime(date)
 
         if(!isValid){
-            println("Please choose valid time at lease 5 minute from now ")
+            sendError(TIME_RANGE)
             return }
 
-//
         val sms = createSms(message , smsUiState)
         getNavigator().scheduleService(sms )
-
     }
 
 
 
   private fun createSms(message: Messages ,smsUiState: SmsUiState): Sms {
-
-
-
-
       val newId = DateUtils.generateId()
       val contactList =ArrayList<Contact>()
       smsUiState.selectedList.forEachIndexed { index, contact ->
-
-
           contactList.add(Contact(contactId = contact.contactId ,
               name =contact.name,
               phone=contact.phone,
               messageId = newId ,
-          smsId = index
-              ))
-      }
+          smsId = index)) }
 
 
 
@@ -227,3 +254,4 @@ class MessageScheduleViewModel
 
 
    }
+

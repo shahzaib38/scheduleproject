@@ -14,7 +14,7 @@ interface MessageDao {
 
 
     @Transaction
-    @Query("SELECT * FROM message")
+    @Query("SELECT * FROM message ORDER BY Id DESC")
     fun getMessageList(): Flow<List<Message>>
 
     @Delete

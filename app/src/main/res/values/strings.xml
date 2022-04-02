@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Message Schedular</string>
+    <string name="app_name">Sms Remainder</string>
     <string name="schedule_message">Schedule</string>
     <string name="back_arrow">Back Arrow</string>
     <string name="timing">set Time</string>
@@ -48,6 +48,7 @@
     <string name="messages">Messages</string>
     <string name="message">Message</string>
     <string name="cancel">CANCEL</string>
+    <string name="no_message_text_size">no messages!</string>
 
 
 </resources>

@@ -36,22 +36,26 @@
             android:layout_margin="@dimen/recyclerview_margin_top"
             app:viewModel="@{selectedViewModel}"
             app:update="@{smsUiState.selectedList }"
+            tools:listitem="@layout/selected_item"
             android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintVertical_chainStyle="packed"
             android:visibility="@{smsUiState.selectedList.isEmpty() ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toTopOf="@+id/nestedScrollView2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+
+            />
 
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nestedScrollView2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/scroll_view_start_margin"
+            android:layout_marginEnd="@dimen/scroll_view_end_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -97,8 +101,8 @@
                     layout="@layout/schedule_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="36dp"
-                    android:layout_marginBottom="27dp"
+                    android:layout_marginTop="@dimen/schedule_button_top_margin"
+                    android:layout_marginBottom="@dimen/schedule_button_bottom_margin"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"

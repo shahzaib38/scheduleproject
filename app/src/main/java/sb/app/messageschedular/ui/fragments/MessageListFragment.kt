@@ -1,8 +1,10 @@
 package sb.app.messageschedular.ui.fragments
 
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -18,13 +20,22 @@ import sb.app.messageschedular.enums.ListEnum
 import sb.app.messageschedular.model.*
 import sb.app.messageschedular.navigator.ListNavigator
 import sb.app.messageschedular.ui.actiivities.MainActivity
+import sb.app.messageschedular.util.DateUtils
+import sb.app.messageschedular.util.Permissions
 import sb.app.messageschedular.viewmodel.MessageListViewModel
-
+    
 
 @AndroidEntryPoint
 class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewModel>() , ListNavigator {
 
     private val mViewModel : MessageListViewModel by viewModels<MessageListViewModel>()
+
+    companion object{
+
+
+        const val PERMISSION_REQUEST_CODE =10221
+
+    }
 
 
     private var mMessageBinding : MessageDataBinding?=null
@@ -114,6 +125,15 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
 
     private fun smsSchedule(){
 
+        println("Sms Schedule ")
+
+       if(!Permissions.hasPermissions(requireContext() ,Permissions.smsPermissions)){
+
+           ActivityCompat.requestPermissions(requireActivity() ,Permissions.smsPermissions ,PERMISSION_REQUEST_CODE)
+
+           return
+       }
+
        val action =     MessageListFragmentDirections.actionMessageLayoutIdToSmsFragment()
 
         mMessageBinding?.root?.findNavController()?.navigate(action)
@@ -147,4 +167,8 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
 
 
     }
+
+
+
+
 }

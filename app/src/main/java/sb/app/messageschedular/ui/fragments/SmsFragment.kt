@@ -13,12 +13,16 @@ import android.text.format.DateFormat.is24HourFormat
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import sb.app.messageschedular.BR
 import sb.app.messageschedular.R
 import sb.app.messageschedular.databinding.SmsDataBinding
@@ -66,6 +70,15 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
         mViewModel.messageInput.observe(viewLifecycleOwner){
 
             println("value "+it )
+
+        }
+
+        lifecycleScope.launch {
+            mViewModel.smsError.collect {
+
+                Snackbar.make(mDataBinding!!.root ,it ,Snackbar.LENGTH_LONG).show()
+
+            }
 
         }
     }
@@ -126,7 +139,10 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
 
     override fun scheduleService(sms: Sms) {
         mActivity?.scheduleService(sms)
-        this.findNavController().navigate(R.id.action_smsFragment_to_message_layoutId) }
+        this.findNavController().navigateUp()
+
+
+    }
 
     override fun openTypeMessageDialog() {
 

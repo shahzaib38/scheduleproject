@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <dimen name="message_list_start_margin">20dp</dimen>
+    <dimen name="message_list_top_margin">40dp</dimen>
+    <dimen name="message_list_end_margin">20dp</dimen>
+    <dimen name="message_list_bottom_margin">40dp</dimen>
+
+
+    <dimen name="message_title_start_margin">28dp</dimen>
+    <dimen name="message_title_top_margin">16dp</dimen>
+    <dimen name="message_title_text_size">32sp</dimen>
+
+    <dimen name="name_date_start_margin">28dp</dimen>
+    <dimen name="name_date_end_margin">8dp</dimen>
+
+    <dimen name="message_dialog_status_text_size">14sp</dimen>
+    <dimen name="message_dialog_status_start_margin">28dp</dimen>
+
+
+
+
+    <dimen name="message_description_start_margin">28dp</dimen>
+    <dimen name="message_description_top_margin">16dp</dimen>
+    <dimen name="message_description_end_margin">16dp</dimen>
+    <dimen name="message_description_text_size">15sp</dimen>
+
+
+
+    <dimen name="cancel_end_margin">16dp</dimen>
+    <dimen name="cancel_bottom_margin">22dp</dimen>
+    <dimen name="cancel_text_size">17sp</dimen>
+
+
+</resources>

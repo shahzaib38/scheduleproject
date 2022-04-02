@@ -39,6 +39,7 @@
             app:destination="@id/message_layoutId"
             app:popUpToInclusive="true"
 
+
             app:enterAnim="@anim/horizontal_slide_in"
             app:exitAnim="@anim/horizontal_slide_out"
             />

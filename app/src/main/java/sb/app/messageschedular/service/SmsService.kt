@@ -154,6 +154,7 @@ class SmsService  : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isServiceStarted =false
+        smsScheduler.checkDatabase()
        if( serviceScope.isActive){
            println("Service Scope is cancelled ")
            serviceScope.cancel() }

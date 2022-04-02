@@ -37,4 +37,11 @@ interface SmsDao {
     @Query("select exists(select * from messages where messageId = :messageId)")
     fun getMessage(messageId :Long) :Boolean
 
+
+    //fun deletaAll()
+
+    @Query("DELETE FROM messages")
+    fun deletaAll()
+
+
 }

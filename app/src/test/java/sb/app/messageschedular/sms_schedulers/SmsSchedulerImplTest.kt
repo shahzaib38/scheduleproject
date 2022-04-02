@@ -1,22 +1,19 @@
 package sb.app.messageschedular.sms_schedulers
 
-import android.text.format.DateFormat
 import com.google.common.truth.Truth
-import io.mockk.every
+import io.mockk.mockk
 
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.*
 import sb.app.messageschedular.enums.Meridiem
+import sb.app.messageschedular.enums.MessageStatus
 import sb.app.messageschedular.exceptions.SmsDeQueueException
 import sb.app.messageschedular.model.*
-import sb.app.messageschedular.util.DateUtils
+import sb.app.messageschedular.service.SmsService
+import sb.app.messageschedular.util.CollectionUtils
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -32,8 +29,11 @@ class SmsSchedulerImplTest {
 
     @Before
     fun setUp() {
-     smsSchedulerImpl  = SmsScdeduler.getInstance()
 
+//
+//    val smsService =    mockk<SmsService>()
+//     smsSchedulerImpl  = SmsScdeduler.getInstance(smsService)
+//
 
 
     }
@@ -62,86 +62,145 @@ class SmsSchedulerImplTest {
 
     @Test(expected = SmsDeQueueException::class)
     fun dequeue_Sms_Test(){
-//
-//        val message =Messages(messageId =121 , message = "hello how are you",time= Time(hours=12, minutes = 14, meridiem = Meridiem.AM ,true ))
-//
-//        val userList =ArrayList<Contact>()
-//
-//        val contact1= Contact(contactId =1 , name ="shahzaib" , phone = "03122189474",0)
-//        val contact2= Contact(contactId = 2, name ="shahzaib" , phone = "03122189474",1)
-//
-//        userList.add(contact1)
-//        userList.add(contact2)
-//
-//        val sms =Sms(messages = message,userList =userList )
-//
-//        smsSchedulerImpl.enqueue(sms)
-//
-//
-//    val isNOtNutll =    smsSchedulerImpl.
-//
-//        Truth.assertThat(isNOtNutll).isNotNull()
-
-    }
-    object Demo{
-
-
-
-            fun hello(value :String )="shahzaibb"
 
     }
 
-    @Test
-    fun demo(){
 
- io.mockk.mockkObject(DateUtils)
-        io.mockk.every {  DateUtils.convertDateIntoFormat(123132) } returns "23"
 
-    }
+
 
 
     @Test
-    fun Test_Order_Of_Priority_Queue_Sms(){
+    fun test_remove_specific_index_from_sms(){
 
-           //DO
+        val USER_NAME_1 ="Shahzaib"
+        val USER_NAME_2 ="Abu"
 
-           val currentDate = System.currentTimeMillis()
-           val message =Messages(date = currentDate , messageId =121 , message = "hello how are you",time= Time(hours=12, minutes = 18, meridiem = Meridiem.AM ,true ))
+    var message =    Message(
+             Id  = 108,
+             messages = Messages(messageId = 111 , message="test message",
+                 time =Time(hours = 12, minutes = 24, meridiem = Meridiem.AM,is24Hours = true)),
+                  smsId =0 ,
+                userInfo = UserInfo(contactId = 1,name =USER_NAME_1, phone = "+923122189474" ,userId=0),
+                  messageStatus = MessageStatus.PENDING)
 
-           val userList =ArrayList<Contact>()
+        val contact1 =Contact(contactId = 1 ,name =USER_NAME_1,phone="+923122189474" , messageId =111 , smsId =0 )
+        val contact2 =Contact(contactId = 1 ,name =USER_NAME_2,phone="+923222527025" , messageId = 112 , smsId =1 )
 
-           val contact1= Contact(contactId =1 , name ="shahzaib" , phone = "03122189474",0)
 
-           userList.add(contact1)
+        val messages =Messages(
+            messageId =111,
+             message ="This is test",
+            time = message.messages.time,
+            date =message.messages.date ,
+            error=Error())
 
-           val sms1 =Sms(messages = message,userList =userList )
+        val sms =Sms(messages = messages , listOf(contact1 ,contact2))
 
-           val message2 =Messages(date = currentDate , messageId =122 , message = "hello how are you",time= Time(hours=12, minutes = 16, meridiem = Meridiem.AM ,true ))
+      val contactList =  CollectionUtils.removeSpecificIndex(message ,sms )
 
-           val userList2 =ArrayList<Contact>()
+        Truth.assertThat(contactList.size).isEqualTo(1)
+    }
 
-           val contact21= Contact(contactId =1 , name ="ahsan" , phone = "03122189474",0)
 
-           userList2.add(contact21)
+    /************** name Of Deleted user *************************/
 
-           val sms2 =Sms(messages = message2,userList =userList2 )
+    @Test
+    fun test_name_of_removed_message_from_sms(){
 
-           smsSchedulerImpl.enqueue(sms1)
-           smsSchedulerImpl.enqueue(sms2)
+        val USER_NAME_1 ="Shahzaib"
+        val USER_NAME_2 ="Abu"
 
-//        val sms =   smsSchedulerImpl.deque()
-//
-//           //When
-//
-//
-//        DateUtils.formatSmsDate(sms)
-//
-//        Truth.assertThat(sms.messages.messageId).isEqualTo(121)
+        val message =    Message(
+            Id  = 108,
+            messages = Messages(messageId = 111 , message="test message",
+                time =Time(hours = 12, minutes = 24, meridiem = Meridiem.AM,is24Hours = true)),
+            smsId =0 ,
+            userInfo = UserInfo(contactId = 1,name =USER_NAME_1, phone = "+923122189474" ,userId=0),
+            messageStatus = MessageStatus.PENDING)
 
+        val contact1 =Contact(contactId = 1 ,name =USER_NAME_1,phone="+923122189474" , messageId =111 , smsId =0 )
+        val contact2 =Contact(contactId = 1 ,name =USER_NAME_2,phone="+923222527025" , messageId = 112 , smsId =1 )
+
+
+        val messages =Messages(
+            messageId =111,
+            message ="This is test",
+            time = message.messages.time,
+            date =message.messages.date ,
+            error=Error())
+
+        val sms =Sms(messages = messages , listOf(contact1 ,contact2))
+
+       val deletedSms =    CollectionUtils.removeSpecificIndex(message,sms )
+
+
+
+        Truth.assertThat(deletedSms[0].smsId ).isEqualTo(1)
 
 
     }
 
+
+
+    @Test
+    fun test_HashMap_List_Update_size(){
+
+        //Sms 1
+
+        val USER_NAME_1 ="Shahzaib"
+        val USER_NAME_2 ="Abu"
+        val USER_NAME_3 ="Home"
+        val USER_NAME_4 ="MOM"
+
+        val message =    Message(
+            Id  = 108,
+            messages = Messages(messageId = 111 , message="test message",
+                time =Time(hours = 12, minutes = 24, meridiem = Meridiem.AM,is24Hours = true)),
+            smsId =0 ,
+            userInfo = UserInfo(contactId = 1,name =USER_NAME_1, phone = "+923122189474" ,userId=0),
+            messageStatus = MessageStatus.PENDING)
+
+        val contact1 =Contact(contactId = 1 ,name =USER_NAME_1,phone="+923122189474" , messageId =111 , smsId =0 )
+        val contact2 =Contact(contactId = 2 ,name =USER_NAME_2,phone="+923222527025" , messageId = 112 , smsId =1 )
+
+
+        val messages =Messages(
+            messageId =111,
+            message ="This is test",
+            time = message.messages.time,
+            date =message.messages.date ,
+            error=Error())
+
+        val sms =Sms(messages = messages , listOf(contact1 ,contact2))
+
+
+        val messages1 =Messages(
+            messageId =112,
+            message ="This is test",
+            time = message.messages.time,
+            date =message.messages.date ,
+            error=Error())
+
+
+
+        val contact3 =Contact(contactId = 3 ,name =USER_NAME_3,phone="+923122189474" , messageId =111 , smsId =0 )
+        val contact4 =Contact(contactId = 4 ,name =USER_NAME_4,phone="+923222527025" , messageId = 112 , smsId =1 )
+
+
+        val sms2 =Sms(messages = messages1 , listOf(contact3 ,contact4))
+
+
+
+        val priorityQueue :Queue<Sms> =     LinkedList<Sms>()
+
+        priorityQueue.offer(sms)
+        priorityQueue.offer(sms2)
+        val hashMap =    CollectionUtils.deletedSms(priorityQueue)
+        hashMap.put(113 ,sms )
+        Truth.assertThat(hashMap.size).isEqualTo(2)
+
+    }
 
 
 

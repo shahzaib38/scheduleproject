@@ -13,8 +13,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingEnd="16dp"
-        android:paddingStart="0dp">
+        android:paddingEnd="@dimen/selected_item_constraint_end_padding"
+        android:paddingStart="@dimen/selected_item_constraint_start_padding">
 
 
         <com.google.android.material.card.MaterialCardView
@@ -25,12 +25,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:background="@color/appbar_color"
-             app:cardCornerRadius="8dp">
+             app:cardCornerRadius="@dimen/selected_item_card_corner">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="@dimen/selected_item_constraint_padding"
                 android:background="@color/appbar_color"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -52,7 +52,7 @@
                     android:id="@+id/linearLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="@dimen/selected_item_linear_start_margin"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/contact_icon"
@@ -73,7 +73,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{contact.phone}"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/selected_item_phone_text_size"
                         android:fontFamily="@font/sf_pro_display_medium"
                         android:textStyle="normal"                        android:textColor="@color/white" />
 
@@ -84,7 +84,7 @@
                     android:id="@+id/closeId"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="@dimen/selected_close_icon_start_margin"
                     android:contentDescription="@string/close_icon"
                     android:src="@drawable/ic_close_circle"
                     app:layout_constraintBottom_toBottomOf="@+id/linearLayout"

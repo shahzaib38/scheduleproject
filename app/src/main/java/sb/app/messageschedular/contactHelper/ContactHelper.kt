@@ -57,6 +57,8 @@ class ContactHelper @Inject constructor( @ApplicationContext val context: Contex
             arrayOf("%$query%"), null)
 
        try {
+
+
                val cursor : Cursor =   cursor1 ?: throw NullPointerException("Cursoe must not be null")
                while (cursor.moveToNext()) {
 
