@@ -1,9 +1,17 @@
 package sb.app.messageschedular.ui.fragments
 
 
-import android.app.Activity
+import android.Manifest
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.telephony.SubscriptionManager
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -11,6 +19,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import sb.app.messageschedular.BR
 import sb.app.messageschedular.R
@@ -20,10 +29,8 @@ import sb.app.messageschedular.enums.ListEnum
 import sb.app.messageschedular.model.*
 import sb.app.messageschedular.navigator.ListNavigator
 import sb.app.messageschedular.ui.actiivities.MainActivity
-import sb.app.messageschedular.util.DateUtils
-import sb.app.messageschedular.util.Permissions
 import sb.app.messageschedular.viewmodel.MessageListViewModel
-    
+
 
 @AndroidEntryPoint
 class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewModel>() , ListNavigator {
@@ -54,7 +61,6 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
         mMessageBinding =   getDataBinding()
          mViewModel.setNavigator(this )
         mActivity =    getBaseActivity() as MainActivity
-
 
 
     }
@@ -121,24 +127,79 @@ class MessageListFragment : BaseFragment<MessageDataBinding, MessageListViewMode
 
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts
+        .RequestPermission()){isGranted ->
+
+        if(isGranted){
+
+            val action =     MessageListFragmentDirections.actionMessageLayoutIdToSmsFragment()
+            mMessageBinding?.root?.findNavController()?.navigate(action)
+        }else{
+
+
+        val alertDialogBuilder =    MaterialAlertDialogBuilder(requireContext())
+            alertDialogBuilder.setTitle("Permission")
+            alertDialogBuilder.setMessage("You must provide permission to access the app")
+
+
+            alertDialogBuilder.setPositiveButton(R.string.settings ,DialogInterface.OnClickListener {
+                    dialog, which ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", "sb.app.messageschedular", null)
+                intent.data = uri
+                startActivity(intent)
+
+            })
+            alertDialogBuilder.setNegativeButton(R.string.canceled ,DialogInterface.OnClickListener {
+                    dialog, which ->
+
+
+            })
+
+            alertDialogBuilder.show()
+
+
+        }
+
+
+
+    }
 
 
     private fun smsSchedule(){
 
-        println("Sms Schedule ")
+        requestContactPermission(Manifest.permission.READ_CONTACTS)
+    }
 
-       if(!Permissions.hasPermissions(requireContext() ,Permissions.smsPermissions)){
 
-           ActivityCompat.requestPermissions(requireActivity() ,Permissions.smsPermissions ,PERMISSION_REQUEST_CODE)
+    private fun requestContactPermission(permission :String =Manifest.permission.READ_CONTACTS){
 
-           return
-       }
 
-       val action =     MessageListFragmentDirections.actionMessageLayoutIdToSmsFragment()
 
-        mMessageBinding?.root?.findNavController()?.navigate(action)
+        when{
+            ContextCompat.checkSelfPermission(requireContext() ,
+                permission) == PackageManager.PERMISSION_GRANTED ->{
+                val action =     MessageListFragmentDirections.actionMessageLayoutIdToSmsFragment()
+                mMessageBinding?.root?.findNavController()?.navigate(action)
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
+                permission)->{
+
+                requestPermissionLauncher.launch(permission)
+            }
+
+            else ->{
+                requestPermissionLauncher.launch(permission)
+
+            }
+        }
+
+
+
 
     }
+
 
 
     override fun delete(message: Message) {

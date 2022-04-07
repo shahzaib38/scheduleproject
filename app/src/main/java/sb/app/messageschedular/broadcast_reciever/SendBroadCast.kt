@@ -6,9 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import sb.app.messageschedular.database.MessageDatabase
 import sb.app.messageschedular.database.SmsDatabase
 import sb.app.messageschedular.enums.MessageStatus
@@ -84,6 +82,7 @@ class SendBroadCast : BroadcastReceiver() {
                     data.put("messageId",messageId)
                     data.put("userId",userId)
                     data.put("messageStatus",1)
+
 
 
                     oneTimeRequest.setInputData(data.build())

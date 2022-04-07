@@ -1,6 +1,7 @@
 package sb.app.messageschedular.util
 
 import android.os.Parcelable
+import android.telephony.SubscriptionInfo
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 import sb.app.messageschedular.model.Contact
@@ -19,6 +20,7 @@ data class  SmsUiState(
     var messageInput : String ="",
 //    var time : Time?=null,
 //    var date: Long?=null
+    var subscriptionInfo: SubscriptionInfo?=null
 ) : Parcelable {
 
     fun getDisplaySearch(): SearchDisplay = when {

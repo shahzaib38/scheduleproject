@@ -4,6 +4,7 @@
     <style name="MessageSchedularTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@color/appbar_color</item>
         <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="TextAppearance.MdcTypographyStyles.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
@@ -116,5 +117,11 @@
 
     <color name="search_color">#868079</color>
 
+    <style name="CheckBoxStyle" parent="@style/Widget.Material3.CompoundButton.CheckBox">
+
+
+
+
+    </style>
 
 </resources>

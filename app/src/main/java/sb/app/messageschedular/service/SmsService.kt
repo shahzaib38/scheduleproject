@@ -19,6 +19,7 @@ import sb.app.messageschedular.model.Message
 import sb.app.messageschedular.model.Sms
 import sb.app.messageschedular.model.Time
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler
+import sb.app.messageschedular.ui.actiivities.MainActivity
 import sb.app.messageschedular.util.DateUtils
 
 
@@ -35,17 +36,16 @@ class SmsService  : Service() {
         return isServiceStarted }
 
     companion object{
-       const  val MESSAGE_ID: String ="messageId"
+        const  val MESSAGE_ID: String ="messageId"
         const val USER_ID:String ="userId"
-       // const val DELIVERED: String ="sb.app.messageschedular.sms_schedulers.DELIVERYKEY"
         const val ADD_SERVICE = "sb.spp.message_scheduler.add"
-
         const val REBOOT ="sb.app.message_scheduler.reboot"
         const val DELETE_SERVICE ="sb.spp.message_scheduler.delete"
         const val Add_kEY ="ADD_KEY"
-     //   const val SENT ="sb.app.messageschedular.sms_schedulers.SENT"
         private  const val channelId = "default_notification_channel_id"
         private const val NOTIFICATION_ID =1995
+        private const val SCHEDULE_NOTIFICATION ="Schedule"
+        private const val SCHEDULE_NOTIFICATION_DESCRIPTION ="notification for scheduling sms"
     }
 
 
@@ -53,20 +53,22 @@ class SmsService  : Service() {
         super.onCreate()
 
 
+        Log.i("SmsService","Service created")
         smsScheduler =  SmsScdeduler.getInstance(this )
-
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val intent = Intent( this.applicationContext,MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
         notificationBuilder  = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(sb.app.messageschedular.R.mipmap.ic_launcher)
             .setContentTitle("Message Scheduled")
-            //  .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
+              .setContentIntent(pendingIntent)
 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        Log.i("SmsService","Service StartCommand")
 
         Log.i("Boot","intent is ${intent?.action}")
 
@@ -130,8 +132,8 @@ class SmsService  : Service() {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "test1", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = "test otificaiton"
+            val channel = NotificationChannel(channelId, SCHEDULE_NOTIFICATION, NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = SCHEDULE_NOTIFICATION_DESCRIPTION
             notificationManager?.createNotificationChannel(channel)
         }
 
@@ -154,8 +156,15 @@ class SmsService  : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isServiceStarted =false
-        smsScheduler.checkDatabase()
-       if( serviceScope.isActive){
+      wakeLock?.release()
+//        smsScheduler.checkDatabase()
+        isServiceStarted =false
+
+        smsScheduler.log("Stop foreground service")
+        stopForeground(true )
+
+
+        if( serviceScope.isActive){
            println("Service Scope is cancelled ")
            serviceScope.cancel() }
 
@@ -202,10 +211,6 @@ class SmsService  : Service() {
         smsScheduler.log("Stop  self")
 
         smsScheduler.log("service state  false ")
-        isServiceStarted =false
-
-        smsScheduler.log("Stop foreground service")
-        stopForeground(true )
 
         stopSelf()
     }
@@ -364,17 +369,19 @@ private fun smsResponseCode(responseCode :Int ){
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
 
-        println("root Intent ")
-//        val restartServiceIntent = Intent(applicationContext, SmsService::class.java).also {
-//            it.setPackage(packageName)
-//        };
-//        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
-//        applicationContext.getSystemService(Context.ALARM_SERVICE);
-//        val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
-//        alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
-//
+        Log.i( "root","root Intent ")
+        val restartServiceIntent = Intent(applicationContext, SmsService::class.java).also {
+            it.setPackage(packageName)
+        };
+        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        applicationContext.getSystemService(Context.ALARM_SERVICE);
+        val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
+        alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
+
 
     }
+
+
 
 
 

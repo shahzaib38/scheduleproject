@@ -96,6 +96,17 @@
                     android:layout_marginTop="@dimen/date_layout_top_margin"
                     bind:timeViewModel="@{selectedViewModel}" />
 
+
+                <include
+
+                    android:id="@+id/sim_layout_id"
+                    layout="@layout/sim_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/date_layout_top_margin"
+                    bind:simViewModel="@{selectedViewModel}" />
+
+
                 <include
                     android:id="@+id/include2"
                     layout="@layout/schedule_button"

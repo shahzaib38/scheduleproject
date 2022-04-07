@@ -1,22 +1,27 @@
 package sb.app.messageschedular.ui.fragments
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.Manifest
+import android.content.*
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat.is24HourFormat
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -41,7 +46,7 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
 
 
 
-    private val mViewModel : MessageScheduleViewModel by viewModels<MessageScheduleViewModel>()
+    private val mViewModel : MessageScheduleViewModel by activityViewModels<MessageScheduleViewModel>()
     private var mDataBinding : SmsDataBinding?=null
 
 
@@ -81,33 +86,19 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
             }
 
         }
+
+
+
+
+//        mViewModel.subscriptionInfoDetial.observe(viewLifecycleOwner){
+//
+//
+//            println("Value "+it )
+//        }
+
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-
-
-        if (requestCode == Permissions.READ_CONTACT_CODE) {
-            // Request for camera permission.
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission has been granted. Start camera preview Activity.
-             //   layout.showSnackbar(R.string.camera_permission_granted, Snackbar.LENGTH_SHORT)
-            //    startCamera()
-
-            } else {
-                // Permission request was denied.
-             //   layout.showSnackbar(R.string.camera_permission_denied, Snackbar.LENGTH_SHORT)
-
-                activity?.finish()
-
-
-            }
-        }
-    }
 
 
     private fun timePickerDialog(){
@@ -150,6 +141,170 @@ class SmsFragment : BaseFragment<SmsDataBinding, MessageScheduleViewModel>(),Mes
 //        findNavController().navigate(action)
 
     }
+
+
+    /*************** Permissoin ******************
+     *
+     */
+
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts
+        .RequestPermission()){isGranted ->
+
+        if(isGranted){
+
+        }else{
+
+
+            val alertDialogBuilder =    MaterialAlertDialogBuilder(requireContext())
+            alertDialogBuilder.setTitle("Permission")
+            alertDialogBuilder.setMessage("You must provide permission to access the app")
+
+
+            alertDialogBuilder.setPositiveButton(R.string.settings , DialogInterface.OnClickListener {
+                    dialog, which ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", "sb.app.messageschedular", null)
+                intent.data = uri
+                startActivity(intent)
+
+            })
+            alertDialogBuilder.setNegativeButton(R.string.canceled , DialogInterface.OnClickListener {
+                    dialog, which ->
+
+
+            })
+
+            alertDialogBuilder.show()
+
+
+        }
+
+
+
+    }
+
+
+
+   override  fun requestSmsPermission(permission :String ){
+
+
+
+        when{
+            ContextCompat.checkSelfPermission(requireContext() ,
+                permission) == PackageManager.PERMISSION_GRANTED ->{
+
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
+                permission)->{
+
+                requestPermissionLauncher.launch(permission)
+            }
+
+            else ->{
+                requestPermissionLauncher.launch(permission)
+
+            }
+        }
+
+
+
+
+    }
+
+    override fun changeSim() {
+
+        requestPhonePermission(Manifest.permission.READ_PHONE_STATE)
+         }
+
+
+
+    /************************ Phone State Permission **********/
+
+    private val requestPhoneStateLauncher = registerForActivityResult(
+        ActivityResultContracts
+            .RequestPermission()){isGranted ->
+
+        if(isGranted){
+
+
+            val simDestination = SmsFragmentDirections.actionSmsFragmentToSimDialog()
+            this.findNavController().navigate(simDestination)
+        }else{
+
+
+            val alertDialogBuilder =    MaterialAlertDialogBuilder(requireContext())
+            alertDialogBuilder.setTitle("Permission")
+            alertDialogBuilder.setMessage("You must provide permission to access the app")
+
+
+            alertDialogBuilder.setPositiveButton(R.string.settings , DialogInterface.OnClickListener {
+                    dialog, which ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", "sb.app.messageschedular", null)
+                intent.data = uri
+                startActivity(intent)
+
+            })
+            alertDialogBuilder.setNegativeButton(R.string.canceled , DialogInterface.OnClickListener {
+                    dialog, which ->
+
+
+            })
+
+            alertDialogBuilder.show()
+
+
+        }
+
+
+
+    }
+
+
+
+   private  fun requestPhonePermission(permission :String ){
+
+
+
+        when{
+            ContextCompat.checkSelfPermission(requireContext() ,
+                permission) == PackageManager.PERMISSION_GRANTED ->{
+
+
+                val simDestination = SmsFragmentDirections.actionSmsFragmentToSimDialog()
+                this.findNavController().navigate(simDestination)
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
+                permission)->{
+
+                requestPhoneStateLauncher.launch(permission)
+            }
+
+            else ->{
+                requestPhoneStateLauncher.launch(permission)
+
+            }
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

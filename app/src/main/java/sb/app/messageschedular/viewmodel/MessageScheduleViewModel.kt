@@ -1,7 +1,11 @@
 package sb.app.messageschedular.viewmodel
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.telephony.SubscriptionInfo
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -33,6 +37,27 @@ class MessageScheduleViewModel
     }
 
 
+
+    private val _CloseDialog = MutableSharedFlow<Boolean>( )
+    val closeDialog =_CloseDialog.asSharedFlow()
+
+
+     val _SubscriptionInfoDetial = MutableLiveData<SubscriptionInfo?>(null  )
+  val subscriptionInfoDetial =_SubscriptionInfoDetial
+
+
+
+
+
+    private val _SubscriptionInfo = MutableStateFlow<List<SubscriptionInfo>?>(value =null  )
+   val subscriptionInfo =_SubscriptionInfo.asLiveData()
+
+    fun setSubscription(subscriptionInfoList :List<SubscriptionInfo>){
+
+        _SubscriptionInfo.value =subscriptionInfoList
+
+    }
+
    private val _UiSearchState  = MutableStateFlow<SmsUiState>(SmsUiState())
     val uiSearchState =_UiSearchState.asLiveData()
 
@@ -58,6 +83,34 @@ class MessageScheduleViewModel
         }
 
     }
+
+
+
+
+
+    fun subscriptionInfoDetail(subscriptionInfo: SubscriptionInfo){
+        println("Suscription " + subscriptionInfo.displayName)
+
+        viewModelScope.launch {
+
+            _CloseDialog.emit(true)
+        }
+
+        _UiSearchState.update {
+            it.copy(subscriptionInfo = subscriptionInfo)
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
 
 
 
@@ -193,8 +246,15 @@ class MessageScheduleViewModel
 
 
     /**** Schedule Sms *****/
-    fun schedule(smsUiState :SmsUiState ,message :Messages){
+    fun schedule(view:View ,smsUiState :SmsUiState ,message :Messages){
         println("smsUiState " +smsUiState  +"message "+message)
+
+        if(ContextCompat.checkSelfPermission(view.context ,Manifest.permission.SEND_SMS)!=PackageManager.PERMISSION_GRANTED){
+            getNavigator().requestSmsPermission()
+            return
+        }
+
+
 
         val selectedListIsEmpty = smsUiState.selectedList.isEmpty()
 
@@ -246,9 +306,12 @@ class MessageScheduleViewModel
 
 
     fun openTypeMessageDialog(){
+        getNavigator().openTypeMessageDialog() }
 
-        getNavigator().openTypeMessageDialog()
 
+    fun changeSim(){
+
+        getNavigator().changeSim()
 
     }
 

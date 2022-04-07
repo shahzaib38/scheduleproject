@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+
+    <!-- message list layout -->
+    <dimen name="message_list_include_start_margin">46dp</dimen>
+    <dimen name="message_list_include_end_margin">35dp</dimen>
+    <dimen name="message_list_include_top_margin">33dp</dimen>
+    <dimen name="message_list_include_bottom_margin">46dp</dimen>
+
+    <dimen name="message_list_divider_height">1dp</dimen>
+    <dimen name="no_message_text_size">35sp</dimen>
+    <dimen name="message_list_float_layout_margin">26dp</dimen>
+
+    <!--- Message Content Size -->
+    <dimen name="message_content_name_size">29sp</dimen>
+    <dimen name="message_content_date_time_text_size">23sp</dimen>
+    <dimen name="message_content_desc_status_top_margin">6dp</dimen>
+    <dimen name="description_end_margin">13dp</dimen>
+    <dimen name="description_text_size">24sp</dimen>
+
+
+    <dimen name="status_text_size">23sp</dimen>
+
+    <dimen name="reason_text_size">6dp</dimen>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</resources>

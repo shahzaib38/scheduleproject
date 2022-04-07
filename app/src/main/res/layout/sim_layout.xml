@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+
+        <variable
+            name="simViewModel"
+            type="sb.app.messageschedular.viewmodel.MessageScheduleViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sim"
+            android:fontFamily="@font/sf_pro_display_medium"
+
+            android:textColor="@color/date_headline_color"
+            android:textSize="@dimen/date_headline"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/constraint_layout_top_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardBackgroundColor="@color/date_card_Color"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/calenderId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/calender_margin_start"
+                        android:layout_marginTop="@dimen/calender_margin_top"
+                        android:layout_marginBottom="@dimen/calender_margin_bottom"
+                        android:contentDescription="@string/calender_description"
+                        android:src="@drawable/sim_card_icon"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/sim_text_id"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/sim_text_id"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/date_text_color"
+                        android:textSize="@dimen/date_text_size"
+                        android:fontFamily="@font/sf_pro_display_medium"
+
+                        app:subscription="@{simViewModel.uiSearchState.subscriptionInfo}"
+                        android:layout_marginStart="@dimen/date_text_start_margin"
+                        app:layout_constraintBottom_toBottomOf="@+id/calenderId"
+                        app:layout_constraintEnd_toStartOf="@+id/changeDateId"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/calenderId"
+                        app:layout_constraintTop_toTopOf="@+id/calenderId" />
+
+                    <TextView
+                        android:id="@+id/changeDateId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/change_date_end_margin"
+                        app:change_sim="@{simViewModel.uiSearchState.subscriptionInfo}"
+                        android:onClick="@{()->simViewModel.changeSim()}"
+                        android:fontFamily="@font/sf_pro_display_medium"
+                        android:textColor="@drawable/date_text_style"
+                        app:layout_constraintBottom_toBottomOf="@+id/sim_text_id"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/sim_text_id"
+                        app:layout_constraintTop_toTopOf="@+id/sim_text_id" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

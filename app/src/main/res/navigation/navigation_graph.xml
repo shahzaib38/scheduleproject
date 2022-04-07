@@ -46,6 +46,12 @@
         <action
             android:id="@+id/action_smsFragment_to_typeMessageFragmentId"
             app:destination="@id/typeMessageFragmentId" />
+
+
+        <action android:id="@+id/action_smsFragment_to_sim_dialog"
+            app:destination="@id/sim_dialog_id"
+            />
+
     </fragment>
 
 
@@ -65,11 +71,12 @@
         android:label="Type Message Dialog"
         tools:layout="@layout/type_message_dialog"
         >
-
-
-
-
     </dialog>
 
+    <dialog android:id="@+id/sim_dialog_id"
+
+        tools:layout="@layout/sim_dialog"
+        android:name="sb.app.messageschedular.ui.dialog.SimDialog"
+        />
 
 </navigation>

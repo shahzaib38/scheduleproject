@@ -4,8 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import sb.app.messageschedular.enums.ListEnum
@@ -40,10 +42,10 @@ class MessageListViewModel  @Inject constructor(private val messageRepository: M
 
 
     fun collectUserMessages(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getUserList().collect {
 
-                _smsList.value =it
+                _smsList.postValue( it)
 
             }
         }

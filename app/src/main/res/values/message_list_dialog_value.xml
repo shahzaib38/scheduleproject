@@ -19,14 +19,10 @@
     <dimen name="message_dialog_status_start_margin">28dp</dimen>
 
 
-
-
     <dimen name="message_description_start_margin">28dp</dimen>
     <dimen name="message_description_top_margin">16dp</dimen>
     <dimen name="message_description_end_margin">16dp</dimen>
     <dimen name="message_description_text_size">15sp</dimen>
-
-
 
     <dimen name="cancel_end_margin">16dp</dimen>
     <dimen name="cancel_bottom_margin">22dp</dimen>

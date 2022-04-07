@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+
+    <dimen name="fragment_layout_padding_start">13dp</dimen>
+    <dimen name="fragment_layout_padding_End">13dp</dimen>
+    <dimen name="select_layout_top_margin">13dp</dimen>
+    <dimen name="contact_layout_top_margin">13dp</dimen>
+
+    <!-- Top Include -->
+    <dimen name="app_title_Start_margin">46dp</dimen>
+    <dimen name="app_title_end_margin">46dp</dimen>
+    <dimen name="app_title_top_margin">35dp</dimen>
+    <dimen name="app_title_text_size">67sp</dimen>
+
+
+    <!--- Search Edit Text -->
+    <dimen name="drawable_padding">16dp</dimen>
+    <dimen name="edittext_text_size">26sp</dimen>
+    <dimen name="edit_text_start_margin">33dp</dimen>
+    <dimen name="edit_text_end_margin">33dp</dimen>
+    <dimen name="edit_text_bottom_margin">46dp</dimen>
+    <dimen name="edit_text_top_margin">19dp</dimen>
+    <dimen name="edit_text_start_padding">28dp</dimen>
+    <dimen name="edit_text_top_padding">24dp</dimen>
+    <dimen name="edit_text_end_padding">28dp</dimen>
+    <dimen name="edit_text_bottom_padding">28dp</dimen>
+
+
+    <!--- Selected List Recyclerview -->
+    <dimen name="recyclerview_margin_top">31dp</dimen>
+
+
+
+    <!-- Scroll view -->
+    <dimen name="scroll_view_start_margin">13dp</dimen>
+    <dimen name="scroll_view_end_margin">13dp</dimen>
+
+
+    <!--- Date layout -->
+    <dimen name="date_layout_top_margin">58dp</dimen>
+    <dimen name="date_headline">23sp</dimen>
+    <dimen name="constraint_layout_top_margin">6dp</dimen>
+    <dimen name="card_corner_radius">13dp</dimen>
+    <dimen name="calender_margin_start">16dp</dimen>
+    <dimen name="calender_margin_top">19dp</dimen>
+    <dimen name="calender_margin_bottom">19dp</dimen>
+    <dimen name="date_text_size">26sp</dimen>
+    <dimen name="date_text_start_margin">14dp</dimen>
+    <dimen name="change_date_end_margin">28dp</dimen>
+    <dimen name="time_constraint_top_margin">6dp</dimen>
+    <dimen name="time_card_corner">13dp</dimen>
+
+
+    <!-- Schedule Button -->
+    <dimen name="schedule_button_top_margin">59dp</dimen>
+    <dimen name="schedule_button_bottom_margin">45dp</dimen>
+
+
+    <!-- Message Layout -->
+    <dimen name="message_headline_size">23sp</dimen>
+    <dimen name="message_left_padding">18dp</dimen>
+    <dimen name="message_top_padding">22dp</dimen>
+    <dimen name="message_edit_text_size">26sp</dimen>
+    <dimen name="message_edit_text_padding">13dp</dimen>
+    <dimen name="message_edit_text_min_height">266dp</dimen>
+    <dimen name="message_edit_top_margin">6dp</dimen>
+
+
+
+    <!--- selected adapter -->
+    <dimen name="selected_item_constraint_end_padding">46dp</dimen>
+    <dimen name="selected_item_constraint_start_padding">0dp</dimen>
+    <dimen name="selected_item_card_corner">16dp</dimen>
+    <dimen name="selected_item_constraint_padding">16dp</dimen>
+    <dimen name="selected_item_linear_start_margin">33dp</dimen>
+    <dimen name="selected_item_phone_text_size">29sp</dimen>
+    <dimen name="selected_close_icon_start_margin">33dp</dimen>
+
+    <!-- Sms Contact Adapter -->
+    <dimen name="sms_item_constraint_padding">13dp</dimen>
+    <dimen name="sms_item_linear_start_margin">26dp</dimen>
+    <dimen name="sms_item_contact_name_text_size">23sp</dimen>
+    <dimen name="sms_item_phone_text_size">19sp</dimen>
+
+</resources>

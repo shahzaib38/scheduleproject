@@ -34,7 +34,7 @@
             android:fontFamily="@font/sf_pro_display_bold"
             android:textColor="@color/white"
             android:textAllCaps="false"
-            android:onClick="@{()->scheduleViewModel.schedule(smsUiState ,message)}"
+            android:onClick="@{(view)->scheduleViewModel.schedule(view,smsUiState ,message)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
