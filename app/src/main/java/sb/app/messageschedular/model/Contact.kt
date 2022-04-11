@@ -16,5 +16,6 @@ data class Contact(
 
     var messageId:Long =0
     ,
+    var subscriptionId :Int =0,
     var smsId : Int =0):Parcelable
 

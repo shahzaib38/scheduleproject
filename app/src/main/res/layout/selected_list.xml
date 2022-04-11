@@ -67,6 +67,9 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+
+
+
                 <include
                     android:id="@+id/message_layoutId"
                     layout="@layout/message_layout"
@@ -77,6 +80,20 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     bind:messageViewModel="@{selectedViewModel}" />
+
+
+
+                <include
+                    android:id="@+id/todo_layout_id"
+                    layout="@layout/todo_layout"
+                    android:visibility="visible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/date_layout_top_margin"
+                    bind:todoViewModel="@{selectedViewModel}" />
+
+
+
 
                 <include
                     android:id="@+id/date_layoutId"
@@ -101,6 +118,7 @@
 
                     android:id="@+id/sim_layout_id"
                     layout="@layout/sim_layout"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/date_layout_top_margin"

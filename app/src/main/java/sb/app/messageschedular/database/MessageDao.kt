@@ -20,9 +20,13 @@ interface MessageDao {
     @Delete
    fun deleteMessage(message: Message)
 
+    @Query("DELETE FROM message where messageId=:messageId")
+    fun deleteMessage(messageId:Long )
 
-   @Query("update message SET messageStatus =:status where messageId = :messageId and userId =:userId ")
-    fun update(status : MessageStatus , messageId : Long ,userId :Int )
 
+    @Query("update message SET messageStatus =:status where messageId = :messageId ")
+    fun update(status : MessageStatus , messageId : Long )
+  //  and userId =:userId
+    //   ,userId :Int
 
 }

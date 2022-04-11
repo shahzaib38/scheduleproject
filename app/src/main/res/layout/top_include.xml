@@ -73,13 +73,15 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+
+<!--        android:drawableStart="@drawable/ic_search_normal"-->
+<!--        android:drawableEnd="@drawable/ic_user_add"-->
+
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/contactId"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/edit_text_background"
-            android:drawableStart="@drawable/ic_search_normal"
-            android:drawableEnd="@drawable/ic_user_add"
             android:drawablePadding="@dimen/drawable_padding"
             android:fontFamily="@font/sf_pro_display_medium"
             android:hint="@string/search"

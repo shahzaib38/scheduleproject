@@ -20,7 +20,7 @@
             android:id="@+id/nameId"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{message.userInfo.name ,default =Shahzaib}"
+            android:text="@{message.messages.title }"
             android:textColor="#000000"
             android:textStyle="normal"
             android:textSize="@dimen/message_content_name_size"

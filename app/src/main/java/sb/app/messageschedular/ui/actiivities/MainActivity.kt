@@ -1,5 +1,6 @@
 package sb.app.messageschedular.ui.actiivities
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,16 +17,16 @@ import sb.app.messageschedular.viewmodel.MessageScheduleViewModel
 
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.work.Constraints
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
+import com.google.gson.Gson
 import sb.app.messageschedular.BR
 import sb.app.messageschedular.R
 import sb.app.messageschedular.api.UnSplashApi
 import sb.app.messageschedular.model.Message
 import sb.app.messageschedular.model.Sms
 import sb.app.messageschedular.service.SmsService
+import sb.app.messageschedular.util.GsonUtils
+import sb.app.messageschedular.workmanager.SmsWorkManager
 //import sb.app.messageschedular.workmanager.SchedulerWorker
 import javax.inject.Inject
 
@@ -34,6 +35,8 @@ class MainActivity : BaseActivity<MainActivityDataBinding, MessageScheduleViewMo
 
     private val mViewModel by viewModels<MessageScheduleViewModel>()
     private var  mDataBinding :MainActivityDataBinding?=null
+
+    val workManager =  WorkManager.getInstance(this  )
 
 
 
@@ -59,11 +62,28 @@ class MainActivity : BaseActivity<MainActivityDataBinding, MessageScheduleViewMo
 
 
 
+    private var count=0
 
 
+     @SuppressLint("RestrictedApi")
      fun scheduleService(sms: Sms) {
 
 
+         Log.i("SmsTest","${sms}")
+
+
+
+//
+//     val serializedSms  =    GsonUtils.serializeSms(sms)
+//
+//             val oneTimeRequest = OneTimeWorkRequest.Builder(SmsWorkManager::class.java)
+//
+//             val data = Data.Builder()
+//
+//               data.put("SMS",serializedSms)
+//               oneTimeRequest.setInputData(data.build())
+//                workManager.enqueueUniqueWork("Unique",ExistingWorkPolicy.REPLACE,oneTimeRequest.build() )
+//
 
 
         if(!mService.isServiceRunning()){

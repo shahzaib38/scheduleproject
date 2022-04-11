@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="todoRecyclerview"
+            type="sb.app.messageschedular.viewmodel.TodoViewModel" />
+
+
+        <import type="android.view.View"/>
+
+
+
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/todo_reycyclerId"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{todoRecyclerview.todoList.empty ? View.GONE :View.VISIBLE}"
+            app:todoViewModel="@{todoRecyclerview}"
+            app:updateTodo="@{todoRecyclerview.todoList}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/nomessageId"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="@{todoRecyclerview.todoList.empty ? View.VISIBLE :View.GONE}">
+
+
+            <TextView
+                android:text="@string/no_message_text_size"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="@dimen/no_message_text_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

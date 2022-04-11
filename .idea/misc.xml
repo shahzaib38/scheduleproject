@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/add_button_style.xml" value="0.1695" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/app_style_drawable.xml" value="0.1285" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/check_box_style.xml" value="0.1695" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/checked.xml" value="0.1695" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/close_icon.xml" value="0.129" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/contact_deactivated.xml" value="0.129" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/contact_drawable.xml" value="0.129" />
@@ -11,8 +14,13 @@
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/date_text_style.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/divider.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/edit_text_background.xml" value="0.1285" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/edit_text_background_not_empty.xml" value="0.1695" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_add.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_baseline_fact_check_24.xml" value="0.1695" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_calendar.xml" value="0.1285" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_close_black.xml" value="0.1695" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_close_circle.xml" value="0.1695" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_error.xml" value="0.1695" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_person_circle.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_person_icon.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/ic_search_normal.xml" value="0.1285" />
@@ -21,38 +29,61 @@
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/schedule_style.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/search_style.xml" value="0.5" />
         <entry key="..\:/MessageSchedular/app/src/main/res/drawable/selected_item_drawable.xml" value="0.123" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/activity_main.xml" value="0.12918871252204586" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/sim_card_icon.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/todo_style.xml" value="0.1695" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/drawable/unchecked.xml" value="0.1695" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/activity_main.xml" value="0.30196629213483145" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/contact_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/date_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/message_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/message_list_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/sms_fragment.xml" value="0.25" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout-w600dp/top_include.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/contact_layout.xml" value="0.15260416666666668" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/add_item_layout.xml" value="0.18" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/contact_layout.xml" value="0.16" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/custom_edit_text.xml" value="0.15260416666666668" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/custom_toolbar.xml" value="0.15260416666666668" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/date_layout.xml" value="0.25" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/description_status.xml" value="0.1" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/dialog_message_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/dialog_message_layout.xml" value="0.29" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/facebook.xml" value="0.12454710144927536" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/for_you.xml" value="0.34150076569678406" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/fragment_sms_fragment.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_appbar_layout.xml" value="0.1" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_content.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_content.xml" value="0.27" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_item.xml" value="1.25" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_layout.xml" value="0.33" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_list_dialog.xml" value="0.1" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_list_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_list_dialog.xml" value="0.22" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/message_list_layout.xml" value="0.33" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/name_date_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/navigation_rail_header.xml" value="0.18" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/no_message_layout.xml" value="0.36625" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/notification_layout.xml" value="0.67" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/reason_layout.xml" value="0.1" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/schedule_button.xml" value="0.4305555555555556" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/schedule_button.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/search_edittext.xml" value="0.15260416666666668" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/selected_item.xml" value="0.67" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/selected_list.xml" value="0.44214876033057854" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/selected_item.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/selected_list.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sim_dialog.xml" value="0.48125" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sim_item.xml" value="0.67" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sim_layout.xml" value="0.240625" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/sms_fragment.xml" value="0.25" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sms_item.xml" value="0.2" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sms_items.xml" value="0.1" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/time_layout.xml" value="0.20416666666666666" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sms_item.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/sms_items.xml" value="0.25" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/time_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/todo_dialog.xml" value="0.2" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/todo_header_layout.xml" value="0.145" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/todo_item.xml" value="0.2556179775280899" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/todo_list.xml" value="0.240625" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/todo_recyclerview_layout.xml" value="0.240625" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/top_bar.xml" value="0.282183316168898" />
-        <entry key="..\:/MessageSchedular/app/src/main/res/layout/top_include.xml" value="0.33" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/top_include.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/two_pane_layout.xml" value="0.1" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/layout/type_message_dialog.xml" value="0.1" />
         <entry key="..\:/MessageSchedular/app/src/main/res/layout/youtube.xml" value="0.12454710144927536" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.151" />
+        <entry key="..\:/MessageSchedular/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1695" />
       </map>
     </option>
   </component>
@@ -65,7 +96,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.1" />
+        <option name="scale" value="0.12" />
       </ProjectState>
     </option>
   </component>

@@ -80,6 +80,9 @@ data class Messages(
      var messageId :Long =0,
     var message : String ="",
 
+    var title :String =""
+    ,
+
     @Embedded
     var time : Time =Time(),
     var date: Long =0 ,

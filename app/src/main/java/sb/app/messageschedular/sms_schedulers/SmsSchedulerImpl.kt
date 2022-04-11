@@ -1,13 +1,18 @@
 package sb.app.messageschedular.sms_schedulers
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
+import androidx.core.app.NotificationCompat
+import com.google.accompanist.insets.rememberImeNestedScrollConnection
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.withContext
 import sb.app.messageschedular.broadcast_reciever.PendingBroadCast
 import sb.app.messageschedular.broadcast_reciever.SendBroadCast
 import sb.app.messageschedular.database.MessageDatabase
@@ -18,13 +23,17 @@ import sb.app.messageschedular.model.*
 import sb.app.messageschedular.service.SmsService
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.ONE_SECOND
 import sb.app.messageschedular.sms_schedulers.SmsScdeduler.Companion.TAG
+import sb.app.messageschedular.ui.actiivities.MainActivity
 import sb.app.messageschedular.util.CollectionUtils
 import sb.app.messageschedular.util.DateUtils
+import sb.app.messageschedular.workmanager.SmsWorkManager
 import java.util.*
 import kotlin.NullPointerException
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 
 interface SmsScdeduler {
 
@@ -43,6 +52,11 @@ interface SmsScdeduler {
     fun log(value :String)
     fun resetCounter(sms:Sms )
    fun  checkDatabase()
+    suspend fun initializeScheduler(sms: Sms, continuation: Continuation<Unit>)
+    fun getCountDownState() :Boolean
+    fun cancelCountDown()
+
+
     companion object{
         const val ONE_SECOND =1000L
          var  TAG = SmsSchedulerImpl::class.java.name
@@ -52,9 +66,12 @@ interface SmsScdeduler {
 
      //   smsDatabase: SmsDatabase
 
-        fun getInstance(smsService: SmsService) :SmsScdeduler = INSTANCE?: synchronized(this ){
-            INSTANCE?:SmsSchedulerImpl(smsService ).also { INSTANCE =it  } }
+      //  ,smsWorkManager: SmsWorkManager
+       // smsService: SmsService
+        fun getInstance(context:Context ,smsService: SmsService ) :SmsScdeduler = INSTANCE?: synchronized(this ){
+            INSTANCE?:SmsSchedulerImpl(context,smsService).also { INSTANCE =it  } }
 
+    //    smsService
     }
 
 
@@ -66,14 +83,18 @@ interface SmsScdeduler {
 }
 
 
+// private val   smsService : SmsService ,
     //private val smsDatabase: SmsDatabase
 class SmsSchedulerImpl constructor(
-        private val   smsService : SmsService ,
-        private  val messageDatabase : MessageDatabase =  MessageDatabase.getInstance(smsService.applicationContext),
-        private  val smsDatabase : SmsDatabase =  SmsDatabase.getInstance(smsService.applicationContext),
+
+        private  val context: Context,
+        private val smsService :SmsService,
+        private  val messageDatabase : MessageDatabase =  MessageDatabase.getInstance(context.applicationContext),
+        private  val smsDatabase : SmsDatabase =  SmsDatabase.getInstance(context.applicationContext),
         private  val smsManager: SmsManager =  android.telephony.SmsManager.getDefault()
     ) : SmsScdeduler {
 
+    private var cancellableContinuation : Continuation<Unit>?=null
 
         companion object {
             var comparator = java.util.Comparator<Sms> { sms1O, sms2O ->
@@ -100,6 +121,9 @@ class SmsSchedulerImpl constructor(
             }
         }
 
+
+
+
     private var priorityQueue : Queue<Sms> =PriorityQueue<Sms>(comparator)
 
         private var isCountDownStart = false
@@ -107,8 +131,21 @@ class SmsSchedulerImpl constructor(
         private var sentMessages: HashMap<Long ,Set<Int>> = HashMap()
 
 
+    override fun getCountDownState() :Boolean {
+        return isCountDownStart
+    }
 
-       override fun getSentMessages() : Map<Long ,Set<Int>>  = sentMessages
+    override fun cancelCountDown() {
+        countDownTimer?.cancel()
+
+        if(cancellableContinuation!=null){
+            Log.i("State","${cancellableContinuation}")
+            cancellableContinuation?.resumeWith(Result.success(Unit ))
+
+        }
+    }
+
+    override fun getSentMessages() : Map<Long ,Set<Int>>  = sentMessages
 
 
      override   fun enqueue(sms :Sms):Boolean {
@@ -161,26 +198,60 @@ class SmsSchedulerImpl constructor(
 
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private fun insertIntoDatabase(sms: Sms ,messageStatus: MessageStatus =MessageStatus.PENDING){
 
         thread(start = true) {
-            sms.userList.forEachIndexed { index, contact ->
-
-                println("UserInfo "+index)
                 val userInfo = UserInfo(
-                    contactId = contact.contactId,
-                    name = contact.name,
-                    phone = contact.phone,
-                    userId = index)
+                    contactId =0 ,
+                    name = "name",
+                    phone = "phone",
+                    userId = 1)
 
                 val message = Message(
                     messages = sms.messages,
                     smsId = sms.messages.messageId,
                     userInfo = userInfo,
                     messageStatus = messageStatus)
+            messageDatabase.smsDao().insertSms(message)
 
-                messageDatabase.smsDao().insertSms(message)
-            } } }
+//            sms.userList.forEachIndexed { index, contact ->
+//
+//                println("UserInfo "+index)
+//                val userInfo = UserInfo(
+//                    contactId = contact.contactId,
+//                    name = contact.name,
+//                    phone = contact.phone,
+//                    userId = index)
+//
+//                val message = Message(
+//                    messages = sms.messages,
+//                    smsId = sms.messages.messageId,
+//                    userInfo = userInfo,
+//                    messageStatus = messageStatus)
+//
+//                messageDatabase.smsDao().insertSms(message)
+//            }
+//
+
+        }
+
+    }
 
 
     /********** Update Mesasge in Database *****/
@@ -203,10 +274,11 @@ class SmsSchedulerImpl constructor(
                     messageStatus = messageStatus)
 
                 messageDatabase.smsDao().update(messageId = message.messages.messageId
-                    , userId = userInfo.userId ,status =MessageStatus.FAILED
+                    ,status =MessageStatus.FAILED
 
                     )
 
+                //, userId = userInfo.userId
             }
 
         }
@@ -267,7 +339,9 @@ class SmsSchedulerImpl constructor(
                 val sms = priorityQueue.peek()
                     schedule(sms)
             }else{
-                smsService.finish() }
+            //    smsService.finish()
+
+            }
         }
 
 
@@ -309,7 +383,7 @@ class SmsSchedulerImpl constructor(
                     insertIntoDatabase(sms, MessageStatus.PENDING)
                     smsDatabase.smsDao().run {
 
-                        this.insertContact(sms.userList)
+                        this.insertContact(listOf())
                         this.insertMessage(sms.messages)
                     }
 
@@ -324,8 +398,78 @@ class SmsSchedulerImpl constructor(
 
 
 
+
+        /************ Deleted Smsm *****/
+        private fun getSmsMap(list: List<Sms>):HashMap<Long,Sms>{
+            val deletedMap     : HashMap<Long ,Sms> =HashMap<Long,Sms>()
+
+
+            list.forEach { sms ->
+                deletedMap.put(sms.messages.messageId ,sms) }
+
+
+
+            return    deletedMap
+        }
+
+
+
+    private fun resetSmsDelete(sms:Sms){
+
+
+            messageDatabase.smsDao().run {
+                this.deleteMessage(sms.messages.messageId) }
+
+
+
+    }
+
+
+
+   suspend  fun resetQueue(sms :Sms ){
+
+       Log.i("listaaa","data aaaaa")
+
+        val smsList =smsDatabase.smsDao().getSmsList()
+
+        Log.i("listaaa","data ${smsList}")
+       if(smsList.isNotEmpty()){
+
+          val smsMap = getSmsMap(smsList)
+           val containSms =      smsMap.get(sms.messages.messageId)
+             if(containSms!=null){
+                 deleteSaeSmsInDb(containSms)
+                resetSmsDelete(sms )
+
+             }
+
+
+           if(smsList.isNotEmpty()){
+
+               if (priorityQueue.isNotEmpty())priorityQueue.clear()
+
+               smsList.forEach {
+                   priorityQueue.offer(it ) }
+
+               schedule(sms)
+
+           }else{
+               schedule(sms ) }
+       }else{
+
+           schedule(sms)
+       }
+
+
+
+
+
+    }
+
+
     override suspend  fun schedule(sms: Sms){
         log("Schedule")
+
 
           val  enqueued  =  enqueue(sms)
 
@@ -347,10 +491,11 @@ class SmsSchedulerImpl constructor(
 
         override fun update(messageId: Long, userId: Int, status: MessageStatus) {
 
+         //   userId = userId,
             thread(start = true) {
 
                 messageDatabase.smsDao().update(
-                    messageId = messageId, userId = userId, status = status
+                    messageId = messageId, status = status
 
                 )
 
@@ -367,9 +512,16 @@ class SmsSchedulerImpl constructor(
         override suspend fun startCountDown(sms :  Sms) =
             withContext(Dispatchers.Main) {
 
-                log("StartCountDown")
-                counterStatus()
-                resetCounter(sms)
+
+                    log("StartCountDown")
+
+
+                    counterStatus()
+                    resetCounter(sms)
+
+
+
+
 
             }
 
@@ -389,34 +541,6 @@ class SmsSchedulerImpl constructor(
      *
      */
 
-
-
-
-//
-//
-//
-//    private fun removeSpecificIndex(message  : Message ,sms : Sms ):List<Contact>{
-//
-//        val  contactList  = sms.userList
-//
-//        //New ArrayList Size
-//        val newArraySize = sms.userList.size -1
-//
-//        // New ArrayList
-//        val newArray = Array<Contact>(newArraySize){Contact()}
-//
-//        //Loop Contact List
-//        var k = 0
-//        for(i:Int in contactList.indices step 1){
-//
-//        val contact  =    contactList[i]
-//            if(contact.smsId == message.userInfo.userId){
-//              Log.i("Delete","smsID ${contact.smsId}    +userId ${message.userInfo.userId}")
-//                continue }
-//
-//          newArray[k++] =  contact }
-//
-//        return newArray.toList() }
 
     private fun printContact(sms : Sms){
 
@@ -488,30 +612,32 @@ class SmsSchedulerImpl constructor(
 
         private fun processDeletedSms(message:Message ,deletedSms :Sms  ,smsMap : HashMap<Long,Sms >){
 
-            val smsDeletedList =  CollectionUtils.removeSpecificIndex(message ,deletedSms)
-
-            deleteLog("remove list 1 ${deletedSms.userList.size}")
-
-            if(smsDeletedList.isNotEmpty()) {
-
-                updateHashMapAndPriorityQueue(
-                    smsMap = smsMap ,
-                    message =message ,
-                    deletedSms = deletedSms ,
-                    smsDeletedList =smsDeletedList)
-
-                deleteContact(message)
-
-                //Print Contact
-                printContact(deletedSms)
-
-                // Remove Message to Sms Database
-                removeToDataBase(message)
-
-            } else{
+//            val smsDeletedList =  CollectionUtils.removeSpecificIndex(message ,deletedSms)
+//
+//            deleteLog("remove list 1 ${deletedSms.userList.size}")
+//
+//            if(smsDeletedList.isNotEmpty()) {
+//
+//                updateHashMapAndPriorityQueue(
+//                    smsMap = smsMap ,
+//                    message =message ,
+//                    deletedSms = deletedSms ,
+//                    smsDeletedList =smsDeletedList)
+//
+//                deleteContact(message)
+//
+//                //Print Contact
+//                printContact(deletedSms)
+//
+//                // Remove Message to Sms Database
+//                removeToDataBase(message)
+//
+//            } else{
                 dequeue(deletedSms)
                 deleteSaeSmsInDb(deletedSms)
-                removeToDataBase(message) }
+                removeToDataBase(message)
+
+            //}
         }
 
 
@@ -571,26 +697,26 @@ class SmsSchedulerImpl constructor(
 
         thread(start =true ) {
 
-            sms.userList.forEachIndexed { index, contact ->
+            sms.userList.forEachIndexed { index, contact :Contact->
 
-                val sentIntent = Intent(smsService.applicationContext ,SendBroadCast::class.java)
+                val sentIntent = Intent(context.applicationContext ,SendBroadCast::class.java)
 
                 sentIntent.putExtra(SmsService.MESSAGE_ID, sms.messages.messageId)
                 sentIntent.putExtra(SmsService.USER_ID, contact.smsId)
 
 
-                val deliveryIntent = Intent(smsService.applicationContext ,PendingBroadCast::class.java)
+                val deliveryIntent = Intent(context.applicationContext ,PendingBroadCast::class.java)
 
 
                 val sentPI = PendingIntent.getBroadcast(
-                    smsService.applicationContext,
+                    context.applicationContext,
                     index,
                     sentIntent,
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 )
                 val deliveryPI =
                     PendingIntent.getBroadcast(
-                        smsService.applicationContext,
+                        context.applicationContext,
                         0,
                         deliveryIntent,
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -604,7 +730,9 @@ class SmsSchedulerImpl constructor(
 
                     messageList.forEach { it ->
 
-                        smsManager.sendTextMessage(
+
+                      //  smsManager.getSms
+                        SmsManager.getSmsManagerForSubscriptionId(contact.subscriptionId).sendTextMessage(
                             contact.phone,
                             null,
                             it,
@@ -671,7 +799,8 @@ class SmsSchedulerImpl constructor(
             println("reset Counter")
             isCountDownStart = true
 
-                smsService.notify(sms)
+
+         smsService.notify(sms)
 
 
         val timeLeft = DateUtils.countDownTime(sms)
@@ -690,7 +819,7 @@ class SmsSchedulerImpl constructor(
                 log("Finish")
                 val sms =   priorityQueue.poll()
 
-                sendSms(sms)
+                createNotification(sms)
 
            //     onUnScheduled()
                 validateQueue()
@@ -734,6 +863,7 @@ class SmsSchedulerImpl constructor(
 
 
     /*******Validate Qeueue  ***/
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun validateQueue(){
         log("Validate "+priorityQueue.size)
 
@@ -747,6 +877,9 @@ class SmsSchedulerImpl constructor(
             isCountDownStart =false
             countDownTimer?.cancel()
             smsService.finish()
+//            cancellableContinuation?.let {
+//                it.resumeWith(Result.success(Unit))
+//            }
 
 
             }
@@ -777,12 +910,56 @@ class SmsSchedulerImpl constructor(
             }
         }
 
+    override suspend  fun initializeScheduler(sms: Sms, continuation: Continuation<Unit>) {
+        cancellableContinuation =continuation
+
+       // schedule(sms)
+        resetQueue(sms)
+    }
 
 
 
 
+    /******************/
+
+    private fun createNotification(sms:Sms  ){
+
+
+        deleteSaeSmsInDb(sms)
+
+        update(
+            messageId = sms.messages.messageId,
+            userId = 0, status = MessageStatus.SENT)
+
+
+        val  notificationBuilder  = NotificationCompat.Builder(context , "channelIdd")
+        val   notificationManager  = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+
+        val intent = Intent( context.applicationContext, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(context , 0, intent, 0)
+
+        notificationBuilder
+            .setSmallIcon(sb.app.messageschedular.R.mipmap.itremider)
+            .setContentTitle(sms.messages.title)
+            .setContentIntent(pendingIntent)
+
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("channelIdd", "notify", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = "Snooze Notify"
+            notificationManager?.createNotificationChannel(channel)
+        }
+
+
+        notificationManager.notify(sms.messages.messageId.toInt() ,notificationBuilder.build())
 
     }
+
+
+}
 
 
 

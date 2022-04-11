@@ -7,4 +7,5 @@ interface ListNavigator : Navigator {
     fun delete(message : Message)
    fun changeAdapter()
    fun  showDialog(message : Message)
+   fun Test()
 }

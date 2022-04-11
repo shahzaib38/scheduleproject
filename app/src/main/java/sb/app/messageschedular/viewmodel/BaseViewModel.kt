@@ -16,4 +16,9 @@ abstract class BaseViewModel<N : Navigator>  constructor(val baseDataManager : B
 
     open fun getNavigator() :N{
 
-        return mNavigator.get()!! } }
+        return mNavigator.get()!! }
+
+
+
+
+}

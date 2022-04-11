@@ -51,6 +51,9 @@
         <action android:id="@+id/action_smsFragment_to_sim_dialog"
             app:destination="@id/sim_dialog_id"
             />
+        <action
+            android:id="@+id/action_smsFragment_to_todo_dialog_id"
+            app:destination="@id/todo_dialog_id" />
 
     </fragment>
 
@@ -78,5 +81,9 @@
         tools:layout="@layout/sim_dialog"
         android:name="sb.app.messageschedular.ui.dialog.SimDialog"
         />
+
+    <dialog android:id="@+id/todo_dialog_id"
+        android:name="sb.app.messageschedular.ui.dialog.TodoDialog"
+        tools:layout="@layout/todo_dialog" />
 
 </navigation>

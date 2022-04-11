@@ -71,7 +71,7 @@ class SmsJobService  : JobService() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
         notificationBuilder  = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(sb.app.messageschedular.R.mipmap.ic_launcher)
+            .setSmallIcon(sb.app.messageschedular.R.mipmap.itremider)
             .setContentTitle("Message Scheduled")
             .setContentIntent(pendingIntent)
 

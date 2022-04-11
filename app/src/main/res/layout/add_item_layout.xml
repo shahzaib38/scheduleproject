@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="addItemViewModel"
+            type="sb.app.messageschedular.viewmodel.TodoViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/contactId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/edit_text_start_margin"
+            android:layout_marginEnd="@dimen/edit_text_end_margin"
+            app:updateWrite="@{addItemViewModel.itemText}"
+            android:drawablePadding="@dimen/drawable_padding"
+            android:text="@={addItemViewModel.itemText}"
+            android:fontFamily="@font/sf_pro_display_medium"
+            android:hint="@string/write"
+            android:lines="1"
+            android:maxLines="1"
+            android:paddingStart="@dimen/edit_text_start_padding"
+            android:paddingTop="@dimen/edit_text_top_padding"
+            android:paddingEnd="@dimen/edit_text_end_padding"
+            android:paddingBottom="@dimen/edit_text_bottom_padding"
+            android:textColor="@color/black"
+            android:textColorHint="@color/search_color"
+            android:textSize="@dimen/edittext_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/addItemId"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/addItemId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false"
+            android:onClick="@{()->addItemViewModel.addItem(addItemViewModel.itemText)}"
+            android:background="@drawable/add_button_style"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/contactId"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

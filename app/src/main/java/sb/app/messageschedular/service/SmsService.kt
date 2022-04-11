@@ -9,6 +9,7 @@ import android.media.RingtoneManager
 import android.os.*
 import android.telephony.SmsManager
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.room.RoomSQLiteQuery.acquire
@@ -52,16 +53,26 @@ class SmsService  : Service() {
     override fun onCreate() {
         super.onCreate()
 
+        wakeLock =
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock").apply {
+                    acquire()
+                }
+            }
+
+
 
         Log.i("SmsService","Service created")
-        smsScheduler =  SmsScdeduler.getInstance(this )
+        smsScheduler =  SmsScdeduler.getInstance(this ,this )
         val intent = Intent( this.applicationContext,MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
         notificationBuilder  = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(sb.app.messageschedular.R.mipmap.ic_launcher)
+            .setSmallIcon(sb.app.messageschedular.R.mipmap.itremider)
             .setContentTitle("Message Scheduled")
               .setContentIntent(pendingIntent)
+
+
 
     }
 
@@ -74,12 +85,6 @@ class SmsService  : Service() {
 
         showNotification()
 
-        wakeLock =
-            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock").apply {
-                    acquire()
-                }
-            }
 
         println("intent ${intent }")
         isServiceStarted =true
@@ -95,6 +100,8 @@ class SmsService  : Service() {
                   schedule(sms!!)
 
               }
+
+
 
               else ->{
 
@@ -160,7 +167,7 @@ class SmsService  : Service() {
 //        smsScheduler.checkDatabase()
         isServiceStarted =false
 
-        smsScheduler.log("Stop foreground service")
+       smsScheduler.log("Stop foreground service")
         stopForeground(true )
 
 
@@ -212,6 +219,7 @@ class SmsService  : Service() {
 
         smsScheduler.log("service state  false ")
 
+        stopForeground(true)
         stopSelf()
     }
 
@@ -378,6 +386,8 @@ private fun smsResponseCode(responseCode :Int ){
         val alarmService: AlarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
         alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
 
+
+        Toast.makeText(this.applicationContext ,"ONTaskRemoved",Toast.LENGTH_LONG).show()
 
     }
 

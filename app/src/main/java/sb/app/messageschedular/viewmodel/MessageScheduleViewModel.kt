@@ -32,9 +32,10 @@ class MessageScheduleViewModel
       const val MESSAGE_EMPTY = "message must not be empty "
         const val VALID_TIME = "choose a valid time"
         const val    TIME_RANGE ="choose valid time at least 5 minutes from now "
-
+        const val SIM_OPTION ="select sim"
 
     }
+
 
 
 
@@ -74,6 +75,8 @@ class MessageScheduleViewModel
     val smsError =_SmsError.asSharedFlow()
 
 
+    private val _TodoList = MutableStateFlow<String>("Todo List")
+      val todoList =_TodoList.asLiveData()
 
     fun sendError(errorMessage:String ){
 
@@ -131,14 +134,14 @@ class MessageScheduleViewModel
 
 
 
-    /***** Search Focus ********/
+//    /***** Search Focus ********/
     fun onSearchFocusedChange(v: View, hasFocus :Boolean ){
-
-        _UiSearchState.update {
-            it.copy(isFocused = hasFocus) }
+//
+//        _UiSearchState.update {
+//            it.copy(isFocused = hasFocus) }
     }
 
-    /***** Progress ************/
+//    /***** Progress ************/
    private  fun showProgress(loading :Boolean ){
         _ProgressLoading.value = loading
 
@@ -146,33 +149,33 @@ class MessageScheduleViewModel
 
     /************ Search from Content Provider ************/
     fun search(s: CharSequence?, start: Int, before: Int, count: Int ){
-        if(s==null) return
-
-        onValueChanged(s.toString().trim())
-        showProgress(true  )
-        viewModelScope.launch {
-            messageRepository.getContacts(s.toString().trim())
-                .catch {
-
-                     }.flowOn(Dispatchers.IO).collect { result ->
-
-                result.forEach {
-                    Log.i("MaoList" , "Result contactId ${it.contactId}  name ${it.name}       ")
-
-                }
-
-
-
-
-                _UiSearchState.update {
-                 val searchDisplay =         it.getDisplaySearch()
-
-                   it.processResult(searchDisplay ,result)
-
-                           }
-
-            } }
-        showProgress(false  )
+//        if(s==null) return
+//
+//        onValueChanged(s.toString().trim())
+//        showProgress(true  )
+//        viewModelScope.launch {
+//            messageRepository.getContacts(s.toString().trim())
+//                .catch {
+//
+//                     }.flowOn(Dispatchers.IO).collect { result ->
+//
+//                result.forEach {
+//                    Log.i("MaoList" , "Result contactId ${it.contactId}  name ${it.name}       ")
+//
+//                }
+//
+//
+//
+//
+//                _UiSearchState.update {
+//                 val searchDisplay =         it.getDisplaySearch()
+//
+//                   it.processResult(searchDisplay ,result)
+//
+//                           }
+//
+//            } }
+//        showProgress(false  )
 
     }
 
@@ -249,19 +252,20 @@ class MessageScheduleViewModel
     fun schedule(view:View ,smsUiState :SmsUiState ,message :Messages){
         println("smsUiState " +smsUiState  +"message "+message)
 
-        if(ContextCompat.checkSelfPermission(view.context ,Manifest.permission.SEND_SMS)!=PackageManager.PERMISSION_GRANTED){
-            getNavigator().requestSmsPermission()
-            return
-        }
+
+//        if(ContextCompat.checkSelfPermission(view.context ,Manifest.permission.SEND_SMS)!=PackageManager.PERMISSION_GRANTED){
+//            getNavigator().requestSmsPermission()
+//            return
+//        }
 
 
 
-        val selectedListIsEmpty = smsUiState.selectedList.isEmpty()
-
-        if(selectedListIsEmpty) {
-            sendError(CONTACT_RANGE)
-
-            return }
+//        val selectedListIsEmpty = smsUiState.selectedList.isEmpty()
+//
+//        if(selectedListIsEmpty) {
+//            sendError(CONTACT_RANGE)
+//
+//            return }
 
       val messageIsEmpty=  message.message.isEmpty()
         if(messageIsEmpty){
@@ -273,6 +277,13 @@ class MessageScheduleViewModel
             sendError(VALID_TIME)
             return }
 
+
+//    val subscriptionInfo =    smsUiState.subscriptionInfo
+//        if(subscriptionInfo == null){
+//
+//            sendError(SIM_OPTION)
+//            return }
+
         val date =   DateUtils.countDownTime(message)
         val isValid =   DateUtils.isValidTime(date)
 
@@ -280,26 +291,34 @@ class MessageScheduleViewModel
             sendError(TIME_RANGE)
             return }
 
-        val sms = createSms(message , smsUiState)
+        val sms = createSms(message , smsUiState )
         getNavigator().scheduleService(sms )
     }
 
+//    contactList.add(Contact(contactId = contact.contactId ,
+//    name =contact.name,
+//    phone=contact.phone,
+//    messageId = newId ,
+//
+//    smsId = index
+//    ,
+//    subscriptionId = subscriptionInfo.subscriptionId
+//
+//    ))
 
-
-  private fun createSms(message: Messages ,smsUiState: SmsUiState): Sms {
+    private fun createSms(message: Messages ,smsUiState: SmsUiState): Sms {
       val newId = DateUtils.generateId()
       val contactList =ArrayList<Contact>()
       smsUiState.selectedList.forEachIndexed { index, contact ->
-          contactList.add(Contact(contactId = contact.contactId ,
-              name =contact.name,
-              phone=contact.phone,
-              messageId = newId ,
-          smsId = index)) }
+          contactList.add(Contact(
+          ))
+
+      }
 
 
 
 
-      return Sms(messages = message.copy(messageId = newId) ,
+      return Sms(messages = message.copy(messageId = newId, title = smsUiState.searchInput) ,
           contactList) }
 
 
@@ -316,5 +335,15 @@ class MessageScheduleViewModel
     }
 
 
-   }
+
+    fun todo(){
+
+        getNavigator().todo() }
+
+    fun addTodoList(format: String) {
+        _TodoList.update {
+            format } }
+
+
+}
 

@@ -59,7 +59,7 @@ class SchedulerWorker(context: Context ,workerParameters: WorkerParameters) :  C
 
         messageDatabase.smsDao().update(
                 messageId = messageId,
-                userId = userId,
+//                userId = userId,
                 status = status
             )
 
